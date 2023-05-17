@@ -1,4 +1,6 @@
+using Azure.Storage.Blobs;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.Win32;
 using MoviesApp.Data;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,6 +11,15 @@ builder.Services.AddServerSideBlazor();
 builder.Services.AddSingleton<WeatherForecastService>();
 
 // Set up authentication and authorization
+string connectionString = "DefaultEndpointsProtocol=https;AccountName=mssk;AccountKey=1pKz7yMisCYrVrHvlO03o74dLdR/A5qIPVtC4Cexo+lKsE9t1mi97+zfQF4wWA2+vFYQa2i+eDML+AStDeTjyg==;EndpointSuffix=core.windows.net";
+string containerName = "accesskeys";
+string blobName = "keys.xml";
+BlobContainerClient container = new BlobContainerClient(connectionString, containerName);
+
+// optional - provision the container automatically
+await container.CreateIfNotExistsAsync();
+
+BlobClient blobClient = container.GetBlobClient(blobName);
 // var blobUriSAS = builder.Configuration.GetConnectionString("blobUriSAS");
 //
 // builder.Services.AddDataProtection()
@@ -16,7 +27,7 @@ builder.Services.AddSingleton<WeatherForecastService>();
 //     .SetApplicationName("MoviesApp");
 
 builder.Services.AddDataProtection()
-    .PersistKeysToFileSystem(new DirectoryInfo(@"../data-protection"))
+    .PersistKeysToAzureBlobStorage(blobClient)
     .SetApplicationName("MoviesApp");
 
 builder.Services.AddAuthentication("Identity.Application")

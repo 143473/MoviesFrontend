@@ -1,5 +1,4 @@
-using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
+using Microsoft.AspNetCore.DataProtection;
 using MoviesApp.Data;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -8,6 +7,22 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddSingleton<WeatherForecastService>();
+
+// Set up authentication and authorization
+var blobUriSAS = builder.Configuration.GetConnectionString("blobUriSAS");
+
+builder.Services.AddDataProtection()
+    .PersistKeysToAzureBlobStorage(new Uri(blobUriSAS))
+    .SetApplicationName("MoviesApp");
+
+builder.Services.AddAuthentication("Identity.Application")
+    .AddCookie("Identity.Application",options =>
+    {
+        options.Cookie.Name = ".Yummy";
+    });
+
+builder.Services.AddAuthorization();
+builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();
 
@@ -24,6 +39,10 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+
+app.UseCookiePolicy();
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");

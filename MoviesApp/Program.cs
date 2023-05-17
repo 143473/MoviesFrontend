@@ -11,7 +11,8 @@ builder.Services.AddServerSideBlazor();
 builder.Services.AddSingleton<WeatherForecastService>();
 
 // Set up authentication and authorization
-string connectionString = "DefaultEndpointsProtocol=https;AccountName=mssk;AccountKey=1pKz7yMisCYrVrHvlO03o74dLdR/A5qIPVtC4Cexo+lKsE9t1mi97+zfQF4wWA2+vFYQa2i+eDML+AStDeTjyg==;EndpointSuffix=core.windows.net";
+//Method 1
+string connectionString = builder.Configuration.GetConnectionString("mssk");
 string containerName = "accesskeys";
 string blobName = "keys.xml";
 BlobContainerClient container = new BlobContainerClient(connectionString, containerName);
@@ -20,15 +21,21 @@ BlobContainerClient container = new BlobContainerClient(connectionString, contai
 await container.CreateIfNotExistsAsync();
 
 BlobClient blobClient = container.GetBlobClient(blobName);
+builder.Services.AddDataProtection()
+    .PersistKeysToAzureBlobStorage(blobClient)
+    .SetApplicationName("MoviesApp");
+
+//  Method 2
 // var blobUriSAS = builder.Configuration.GetConnectionString("blobUriSAS");
 //
 // builder.Services.AddDataProtection()
 //     .PersistKeysToAzureBlobStorage(new Uri(blobUriSAS))
 //     .SetApplicationName("MoviesApp");
 
-builder.Services.AddDataProtection()
-    .PersistKeysToAzureBlobStorage(blobClient)
-    .SetApplicationName("MoviesApp");
+//Method 3
+// builder.Services.AddDataProtection()
+//     .PersistKeysToFileSystem(new DirectoryInfo(@"c:\temp-keys\"))
+//     .SetApplicationName("SharedCookieApp");
 
 builder.Services.AddAuthentication("Identity.Application")
     .AddCookie("Identity.Application",options =>

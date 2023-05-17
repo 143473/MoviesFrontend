@@ -9,10 +9,14 @@ builder.Services.AddServerSideBlazor();
 builder.Services.AddSingleton<WeatherForecastService>();
 
 // Set up authentication and authorization
-var blobUriSAS = builder.Configuration.GetConnectionString("blobUriSAS");
+// var blobUriSAS = builder.Configuration.GetConnectionString("blobUriSAS");
+//
+// builder.Services.AddDataProtection()
+//     .PersistKeysToAzureBlobStorage(new Uri(blobUriSAS))
+//     .SetApplicationName("MoviesApp");
 
 builder.Services.AddDataProtection()
-    .PersistKeysToAzureBlobStorage(new Uri(blobUriSAS))
+    .PersistKeysToFileSystem(new DirectoryInfo(@"../data-protection"))
     .SetApplicationName("MoviesApp");
 
 builder.Services.AddAuthentication("Identity.Application")

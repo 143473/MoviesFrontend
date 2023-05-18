@@ -3,7 +3,7 @@
   "defaultVariables": null,
   "documentGenerator": {
     "fromDocument": {
-      "json": "swagger.yaml",
+      "json": "moviesApi_swagger.yaml",
       "newLineBehavior": "Auto"
     }
   },

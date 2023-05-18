@@ -1,0 +1,7 @@
+﻿.logo-banner {
+    background-image:url(Images/BestMovies.png);
+    background-position: center center;
+    height: 400px;
+    width: 100%;
+    background-repeat: no-repeat;
+}

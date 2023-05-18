@@ -8,8 +8,14 @@
 }
 else
 {
-    <h3>@movie.Title</h3>
-    <img src=@movie.Poster_path />
+	<div class="row">
+		<div class="col-md-4">
+			<img src=@movie.Poster_path />
+			</div>
+			<div class="col-md-4">
+				<h3>@movie.Title</h3>
+			</div>
+	</div>
 }
 
 @code {

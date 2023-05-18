@@ -1,12 +1,12 @@
 # Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 
-name: Build and deploy container app to Azure Web App - moviesappsep6
+name: Build and deploy container app to Azure Web App - moviesfrontenddev
 
 on:
   push:
     branches:
-      - master
+      - dev
   workflow_dispatch:
 
 jobs:
@@ -23,21 +23,21 @@ jobs:
       uses: docker/login-action@v2
       with:
         registry: https://sepmoviesregistry.azurecr.io/
-        username: ${{ secrets.AzureAppService_ContainerUsername_e3de2b4542fb4375af8bd288db5fc8af }}
-        password: ${{ secrets.AzureAppService_ContainerPassword_8df3d114ab1c48fc8889b4fd72432bc2 }}
+        username: ${{ secrets.AzureAppService_ContainerUsername_277bd9922b114fbeb197415bf69d5339 }}
+        password: ${{ secrets.AzureAppService_ContainerPassword_8dd6bc53ac5a43828ff8a4e550204979 }}
 
     - name: Build and push container image to registry
       uses: docker/build-push-action@v3
       with:
         push: true
-        tags: sepmoviesregistry.azurecr.io/${{ secrets.AzureAppService_ContainerUsername_e3de2b4542fb4375af8bd288db5fc8af }}/moviesapp:${{ github.sha }}
+        tags: sepmoviesregistry.azurecr.io/${{ secrets.AzureAppService_ContainerUsername_277bd9922b114fbeb197415bf69d5339 }}/moviesapp-dev:${{ github.sha }}
         file: ./Dockerfile
 
   deploy:
     runs-on: ubuntu-latest
     needs: build
     environment:
-      name: 'production'
+      name: 'development'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
 
     steps:
@@ -45,7 +45,7 @@ jobs:
       id: deploy-to-webapp
       uses: azure/webapps-deploy@v2
       with:
-        app-name: 'moviesappsep6'
-        slot-name: 'production'
-        publish-profile: ${{ secrets.AzureAppService_PublishProfile_7c3636afc79647d28f31dca032dbc803 }}
-        images: 'sepmoviesregistry.azurecr.io/${{ secrets.AzureAppService_ContainerUsername_e3de2b4542fb4375af8bd288db5fc8af }}/moviesapp:${{ github.sha }}'
+        app-name: 'moviesfrontenddev'
+        slot-name: 'development'
+        publish-profile: ${{ secrets.AzureAppService_PublishProfile_feb8abcf558740a1a315304682212dd6 }}
+        images: 'sepmoviesregistry.azurecr.io/${{ secrets.AzureAppService_ContainerUsername_277bd9922b114fbeb197415bf69d5339 }}/moviesapp-dev:${{ github.sha }}'

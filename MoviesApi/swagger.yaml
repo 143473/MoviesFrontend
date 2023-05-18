@@ -1,0 +1,238 @@
+swagger: "2.0"
+info:
+  description: "Service responsible to handle all the calls related to movies."
+  version: "1.0.0"
+  title: MoviesDbAPI
+host: "localhost:7012"
+basePath: "/"
+tags:
+  - name: MoviesDb
+    description: Everything that goes with the movies
+
+produces:
+  - "application/json"
+schemes:
+  - "https"
+
+paths:
+  '/register':
+    post:
+      tags:
+        - users
+      operationId: RegisterUser
+      parameters:
+        - name: registerRequest
+          in: body
+          schema: 
+            $ref: "#/definitions/RegisterRequest"
+          required: true
+      responses:
+        201:
+          description: Created
+        400:
+          description: Bad Request
+  '/comment':
+    post:
+      tags:
+        - comments
+      operationId: AddComment
+      parameters:
+        - name: commentRequest
+          in: body
+          schema:
+            $ref: "#/definitions/CommentRequest"
+          required: true
+      responses: 
+        201:
+          description: Yeeeey!!
+        400:
+          description: Bad Request
+
+  '/movie/{movie_id}':
+    get:
+      tags:
+        - movies
+      operationId: GetMovie
+      description: Get a movie by id
+      parameters:
+        - name: movie_id
+          in: path
+          required: true
+          type: integer
+      responses:
+        200:
+          description: Returns a movie
+          schema:
+            $ref: "#/definitions/MovieResponse"
+        401:
+          description: Unauthorized
+        404:
+          description: Movie not found
+
+definitions:
+  MovieResponse:
+    type: object
+    properties:
+      adult:
+        type: boolean
+      backdrop_path:
+        type: string
+      belongs_to_collection:
+        type: array
+        items:
+          $ref: "#/definitions/BelongsToCollection"
+      budget:
+        type: integer
+      genres:
+        type: array
+        items:
+          $ref: "#/definitions/Genre"
+      homepage:
+         type: string
+      id:
+         type: integer
+      imdb_id:
+         type: string
+      original_language:
+         type: string
+      original_title:
+         type: string
+      overview:
+         type: string
+      popularity:
+         type: number
+      poster_path: 
+         type: string
+      production_companies:
+         type: array
+         items:
+          $ref: "#/definitions/ProductionCompany"
+      production_countries:
+         type: array
+         items:
+          $ref: "#/definitions/ProductionCountry"
+      release_date:
+         type: string
+      revenue:
+         type: integer
+      runtime:
+         type: integer
+      spoken_languages:
+         type: array
+         items:
+          $ref: "#/definitions/SpokenLanguage"
+      status:
+         type: string
+      tagline:
+         type: string
+      title:
+         type: string
+      video:
+         type: boolean
+      vote_average:
+         type: number
+      vote_count:
+         type: integer
+
+  Genre:
+    type: object
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+
+  ProductionCompany:
+    type: object
+    properties:
+      id:
+        type: integer
+      logo_path:
+        type: string
+      name:
+        type: string  
+      origin_country:
+        type: string
+
+  ProductionCountry:
+    type: object
+    properties:
+      iso_3166_1:
+        type: string
+      name:
+        type: string
+  
+  SpokenLanguage:
+     type: object
+     properties:
+       english_name:
+         type: string
+       iso_639_1:
+         type: string
+       name:
+         type: string
+
+  BelongsToCollection:
+     type: object
+     properties:
+       id:
+         type: integer
+       name:
+         type: string
+       poster_path:
+         type: string
+       backdrop_path:
+         type: string
+
+  RegisterRequest:
+    type: object
+    properties: 
+      email:
+        type: string
+      password:
+        type: string
+  CommentRequest:
+    type: object
+    properties: 
+      userId:
+        type: string
+      comment:
+        type: string
+      movieId:
+        type: string
+  MoviesListResponse:
+    type: object
+    properties:
+      id:
+        type: integer
+        description: ID of the movie?
+      page:
+        type: integer
+      results:
+        type: array
+        items:
+          $ref: "#/definitions/ListResults"
+      total_pages:
+        type: integer
+      total_results:
+        type: integer
+  
+  ListResults:
+    type: object
+    properties:
+      id:
+        type: integer
+      descripton:
+        type: string
+      favorite_count:
+        type: integer
+      item_count:
+        type: integer
+      iso_639_1:
+        type: string
+      list_type:
+        type: string
+      name:
+        type: string
+      poster_path:
+        type: string

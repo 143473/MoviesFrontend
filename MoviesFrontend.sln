@@ -5,17 +5,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docker", "Docker", "{8293BA
 		Dockerfile = Dockerfile
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MoviesApp", "MoviesApp\MoviesApp.csproj", "{669E409D-ED94-4032-9CD9-B20E83A30FBC}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{669E409D-ED94-4032-9CD9-B20E83A30FBC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{669E409D-ED94-4032-9CD9-B20E83A30FBC}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{669E409D-ED94-4032-9CD9-B20E83A30FBC}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{669E409D-ED94-4032-9CD9-B20E83A30FBC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

@@ -1,0 +1,37 @@
+﻿@page "/Movie"
+@using MoviesApp.Services.Interfaces
+@using movies_api
+
+@if (false || movie is null)
+{
+    <p>Unable to get the movie from TMDB. Please try again later.</p>
+}
+else
+{
+    <h3>@movie.Title</h3>
+    <img src=@movie.Poster_path />
+}
+
+@code {
+	int Id = 603;
+	IMovieService _movieService;
+	private bool shouldRender;
+	private string imageURL = "https://image.tmdb.org/t/p/w500";
+	MovieResponse movie;
+
+	protected override bool ShouldRender() => shouldRender;
+
+	protected override async Task OnInitializedAsync()
+	{
+		/*MovieResponse movie = await _movieService.GetMovieAsync(Id);
+		imageURL += movie.Poster_path;
+		shouldRender = true;
+		*/
+		movie = new()
+		{
+			Poster_path = imageURL + "/f89U3ADr1oiB1s9GkdPOEpXUk5H.jpg",
+			Title = "The Matrix"
+		};
+	}
+
+}

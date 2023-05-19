@@ -1,5 +1,9 @@
 ﻿@page "/"
 @using Radzen.Blazor
+@using MoviesApp.Services.Interfaces
+@using movies_api
+@inject IMovieService _movieService
+
 
 <PageTitle>Home</PageTitle>
 
@@ -7,4 +11,20 @@
   
 </div>
 
-<RadzenTextBox Placeholder="Search for a title..."  class="w-100 rz-border-radius-6"/>
+<RadzenTextBox Placeholder="Search for a title..."  class="w-100 rz-border-radius-6" Change="@(OnChange)"/>
+
+@foreach(var movie in movies.Results)
+    {
+        <div>@movie.Title</div>
+    }
+
+
+@code
+{
+    private MoviesResponseDto movies = new() { Results = Array.Empty<MovieByTitleResponseDto>() };
+    
+    private async Task OnChange(string args)
+    {
+        movies = await _movieService.GetMoviesByTitleAsync(args);
+    }
+}

@@ -31,7 +31,7 @@ jobs:
       with:
         push: true
         tags: sepmoviesregistry.azurecr.io/${{ secrets.AzureAppService_ContainerUsername_31e147b6b54d448e836e6e0f73016ba6 }}/moviesapp-dev:${{ github.sha }}
-        file: ./Dockerfile
+        file: ./Dockerfile-dev
 
   deploy:
     runs-on: ubuntu-latest

@@ -2,29 +2,70 @@
 @using Radzen.Blazor
 @using MoviesApp.Services.Interfaces
 @using movies_api
+@using Radzen
 @inject IMovieService _movieService
 
 
 <PageTitle>Home</PageTitle>
+<div class="sticky-top background">
+    <div class="logo-banner"></div>
 
-<div class="logo-banner">
-  
+    <div class="justify-content-center rz-display-flex">
+        <RadzenTextBox Placeholder="Search for a title..." class="w-75 rz-border-radius-6 rz-my-10 pl-3" Change="@(OnChange)"/>
+    </div>
 </div>
 
-<RadzenTextBox Placeholder="Search for a title..."  class="w-100 rz-border-radius-6" Change="@(OnChange)"/>
-
-@foreach(var movie in movies.Results)
+<RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center" Wrap="FlexWrap.Wrap">
+    @foreach(var movie in movies.Results)
     {
-        <div>@movie.Title</div>
+        <RadzenCard Class="rz-my-2 rz-mx-2" Style="width: 420px">
+            <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Start" Gap="1rem" Class="rz-p-4">
+                @if (string.IsNullOrWhiteSpace(movie.Poster_path))
+                {
+                    <RadzenImage Path="Images/MissingImage.png" Style="width: 100px; height: 100px; border-radius: 1%;"/>
+                }
+                else
+                {
+                    <RadzenImage Path="@movie.Poster_path" Style="width: 100px; height: 100px; border-radius: 1%;"/>
+                }
+                <RadzenStack Orientation="Orientation.Vertical" JustifyContent="JustifyContent.Start" Gap="0rem">
+                    <RadzenText>@movie.Title</RadzenText>
+                    @if (details.Contains(movie.Id))
+                    {
+                        <RadzenLabel>@movie.Description</RadzenLabel>
+                        <label class="details-link" @onclick="() => details.Remove(movie.Id)">See less</label>
+                    }
+                    else
+                    {
+                        <RadzenLabel>@movie.Description[..Math.Min(movie.Description.Length, 100)]
+                            @if (movie.Description.Length > 100)
+                            {
+                                <text>...&nbsp;</text>
+                                <label class="details-link" @onclick="() => details.Add(movie.Id)">See more</label>
+                            }
+                        </RadzenLabel>
+                    }
+                </RadzenStack>
+            </RadzenStack>
+        </RadzenCard>
     }
-
+</RadzenStack>
 
 @code
 {
     private MoviesResponseDto movies = new() { Results = Array.Empty<MovieByTitleResponseDto>() };
-    
-    private async Task OnChange(string args)
+    private HashSet<int?> details = new();
+
+    private async Task OnChange(string title)
     {
-        movies = await _movieService.GetMoviesByTitleAsync(args);
+        details.Clear();
+        if (string.IsNullOrWhiteSpace(title))
+        {
+            movies.Results.Clear();
+        }
+        else
+        {
+            movies = await _movieService.GetMoviesByTitleAsync(title);
+        }
     }
 }

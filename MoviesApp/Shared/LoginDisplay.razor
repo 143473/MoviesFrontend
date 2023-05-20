@@ -6,7 +6,15 @@
         </form>
     </Authorized>
     <NotAuthorized>
-        <a href="Identity/Account/Register">Register</a>
-        <a href="Identity/Account/Login">Log in</a>
+       <div class="d-flex d-inline-flex">
+        <NavLink class="nav-link" href="Identity/Account/Register">
+            <span aria-hidden="true"></span> Register
+        </NavLink>
+        <NavLink class="nav-link" href="Identity/Account/Login">
+            <span class="oi oi-account-login" aria-hidden="true"></span> Login
+        </NavLink>
+        @* <a href="Identity/Account/Register">Register</a> *@
+        @* <a href="Identity/Account/Login">Log in</a> *@
+       </div>
     </NotAuthorized>
 </AuthorizeView>

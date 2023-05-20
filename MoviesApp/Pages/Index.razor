@@ -54,7 +54,7 @@
 
 @code
 {
-    private MoviesResponseDto movies = new() { Results = Array.Empty<MovieByTitleResponseDto>() };
+    private MoviesResponseDto movies = new() { Results = Array.Empty<MovieDto>() };
     private HashSet<int?> details = new();
 
     private async Task OnChange(string title)
@@ -82,7 +82,7 @@
 
     private void SetResult(string message)
     {
-        movies.Results = new List<MovieByTitleResponseDto> { new() { Title = message } };
+        movies.Results = new List<MovieDto> { new() { Title = message } };
     }
 
     private static string ToYear(string date) => DateTime.TryParse(date, out var dateTime) ? dateTime.Year.ToString() : string.Empty;

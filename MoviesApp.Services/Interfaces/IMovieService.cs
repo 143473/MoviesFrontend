@@ -6,5 +6,6 @@ namespace MoviesApp.Services.Interfaces
     public interface IMovieService
     {
         Task<MovieResponse> GetMovieAsync(int movie_id);
+        Task<MoviesResponseDto> GetMoviesByTitleAsync(string title);
     }
 }

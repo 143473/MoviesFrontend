@@ -18,5 +18,10 @@ public class MovieService : IMovieService
     {
         return await _moviesClient.GetMovieAsync(movie_id);
     }
+    
+    public async Task<MoviesResponseDto> GetMoviesByTitleAsync(string title)
+    {
+        return await _moviesClient.GetMoviesByTitleAsync(title);
+    }
 
 }

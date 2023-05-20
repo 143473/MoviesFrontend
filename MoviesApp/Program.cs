@@ -26,7 +26,6 @@ builder.Services.AddServerSideBlazor();
 builder.Services
     .AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<IdentityUser>>();
 builder.Services.AddScoped<IMovieService, MovieService>();
-builder.Services.AddSingleton<WeatherForecastService>();
 
 var app = builder.Build();
 

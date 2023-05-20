@@ -1,43 +1,37 @@
 ﻿@page "/Movie"
 @using MoviesApp.Services.Interfaces
 @using movies_api
+@inject IMovieService _movieService
+@using Radzen.Blazor
+@using Radzen
 
-@if (false || movie is null)
-{
-    <p>Unable to get the movie from TMDB. Please try again later.</p>
-}
-else
-{
-	<div class="row">
-		<div class="col-md-4">
-			<img src=@movie.Poster_path />
-			</div>
-			<div class="col-md-4">
-				<h3>@movie.Title</h3>
-			</div>
-	</div>
-}
+<RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center" Wrap="FlexWrap.Wrap">
+    <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Start" Gap="1rem" Class="rz-p-4">
 
+        <RadzenImage Path="@imageURL" Style="border-radius: 1%;"/>
+
+        <RadzenStack Orientation="Orientation.Vertical" JustifyContent="JustifyContent.Start" Gap="0rem">
+            <RadzenText TextStyle="TextStyle.H3" Style="color: white">
+                <strong>@movie.Title</strong>
+            </RadzenText>
+            <RadzenText TextStyle="TextStyle.Body1" Style="color: white">@ToYear(movie.Release_date)</RadzenText>
+             <RadzenText TextStyle="TextStyle.Body1" Style="color: white">@movie.Overview</RadzenText>
+        </RadzenStack>
+    </RadzenStack>
+</RadzenStack>
 @code {
-	int Id = 603;
-	IMovieService _movieService;
-	private bool shouldRender;
-	private string imageURL = "https://image.tmdb.org/t/p/w500";
-	MovieResponse movie;
+    int Id = 603;
+    private string imageURL = "https://image.tmdb.org/t/p/w500";
+    private MovieResponse movie = new MovieResponse();
+    string title;
 
-	protected override bool ShouldRender() => shouldRender;
+    protected override async Task OnInitializedAsync()
+    {
+        movie = await _movieService.GetMovieAsync(Id);
+        imageURL += movie.Poster_path;
+        title = movie.Title;
+    }
 
-	protected override async Task OnInitializedAsync()
-	{
-		/*MovieResponse movie = await _movieService.GetMovieAsync(Id);
-		imageURL += movie.Poster_path;
-		shouldRender = true;
-		*/
-		movie = new()
-		{
-			Poster_path = imageURL + "/f89U3ADr1oiB1s9GkdPOEpXUk5H.jpg",
-			Title = "The Matrix"
-		};
-	}
+    private static string ToYear(string date) => DateTime.TryParse(date, out var dateTime) ? dateTime.Year.ToString() : string.Empty;
 
 }

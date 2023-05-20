@@ -475,7 +475,7 @@ namespace movies_api
         /// </remarks>
         /// <returns>Returns a list of movies</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<MoviesListResponse> GetMoviesByTitleAsync(string name, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken));
+        System.Threading.Tasks.Task<MoviesResponseDto> GetMoviesByTitleAsync(string title, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken));
 
     }
 
@@ -603,14 +603,14 @@ namespace movies_api
         /// </remarks>
         /// <returns>Returns a list of movies</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<MoviesListResponse> GetMoviesByTitleAsync(string name, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
+        public virtual async System.Threading.Tasks.Task<MoviesResponseDto> GetMoviesByTitleAsync(string title, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
         {
-            if (name == null)
-                throw new System.ArgumentNullException("name");
+            if (title == null)
+                throw new System.ArgumentNullException("title");
 
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/movies?");
-            urlBuilder_.Append(System.Uri.EscapeDataString("name") + "=").Append(System.Uri.EscapeDataString(ConvertToString(name, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
+            urlBuilder_.Append(System.Uri.EscapeDataString("title") + "=").Append(System.Uri.EscapeDataString(ConvertToString(title, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
             urlBuilder_.Length--;
 
             var client_ = new System.Net.Http.HttpClient();
@@ -645,7 +645,7 @@ namespace movies_api
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
-                            var objectResponse_ = await ReadObjectResponseAsync<MoviesListResponse>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            var objectResponse_ = await ReadObjectResponseAsync<MoviesResponseDto>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
@@ -963,54 +963,33 @@ namespace movies_api
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.18.2.0 (NJsonSchema v10.8.0.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial class MoviesListResponse
+    public partial class MoviesResponseDto
     {
-        /// <summary>
-        /// ID of the movie?
-        /// </summary>
-        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public int? Id { get; set; }
-
-        [Newtonsoft.Json.JsonProperty("page", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public int? Page { get; set; }
-
-        [Newtonsoft.Json.JsonProperty("results", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.Collections.Generic.ICollection<ListResults> Results { get; set; }
-
-        [Newtonsoft.Json.JsonProperty("total_pages", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public int? Total_pages { get; set; }
-
-        [Newtonsoft.Json.JsonProperty("total_results", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public int? Total_results { get; set; }
+        [Newtonsoft.Json.JsonProperty("Results", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.ICollection<MovieByTitleResponseDto> Results { get; set; }
 
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.18.2.0 (NJsonSchema v10.8.0.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial class ListResults
+    public partial class MovieByTitleResponseDto
     {
-        [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("Id", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int? Id { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("description", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonProperty("Description", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Description { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("favorite_count", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public int? Favorite_count { get; set; }
+        [Newtonsoft.Json.JsonProperty("FavoriteCount", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int? FavoriteCount { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("item_count", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public int? Item_count { get; set; }
+        [Newtonsoft.Json.JsonProperty("Title", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Title { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("iso_639_1", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Iso_639_1 { get; set; }
+        [Newtonsoft.Json.JsonProperty("PosterPath", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string PosterPath { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("list_type", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string List_type { get; set; }
-
-        [Newtonsoft.Json.JsonProperty("name", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Name { get; set; }
-
-        [Newtonsoft.Json.JsonProperty("poster_path", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public string Poster_path { get; set; }
+        [Newtonsoft.Json.JsonProperty("ReleaseDate", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string ReleaseDate { get; set; }
 
     }
 

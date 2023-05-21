@@ -8,31 +8,53 @@
 <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center" Wrap="FlexWrap.Wrap">
     <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Start" Gap="1rem" Class="rz-p-4">
 
-        <RadzenImage Path="@imageURL" Style="border-radius: 1%;"/>
+        <RadzenImage Path="@movie.Poster_path" Style="border-radius: 1%;"/>
 
         <RadzenStack Orientation="Orientation.Vertical" JustifyContent="JustifyContent.Start" Gap="0rem">
             <RadzenText TextStyle="TextStyle.H3" Style="color: white">
                 <strong>@movie.Title</strong>
             </RadzenText>
             <RadzenText TextStyle="TextStyle.Body1" Style="color: white">@ToYear(movie.Release_date)</RadzenText>
-             <RadzenText TextStyle="TextStyle.Body1" Style="color: white">@movie.Overview</RadzenText>
+            <RadzenText TextStyle="TextStyle.Body1" Style="color: white">@movie.Overview</RadzenText>
+            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0rem">
+                <RadzenText TextStyle="TextStyle.H5" Style="color: white" Class="rz-pr-4">Rating:</RadzenText>
+                <RadzenText TextStyle="TextStyle.H4" Style="color: white" Class="rz-pr-4">@movie.Vote_average</RadzenText>
+            </RadzenStack>
+            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0rem">
+                <div class="rz-pr-4 rz-text-align-center">
+                    <RadzenRating TValue="int" Stars="10" Value=@value Change=@(args => value = args)/>
+                </div>
+                <RadzenButton Shade="Shade.Lighter" Click=@(() => RateMovie(@movie.Id)) Text="Rate" ButtonStyle="ButtonStyle.Light"/>
+            </RadzenStack>
+            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0rem">
+                <RadzenText TextStyle="TextStyle.Body1" Style="color: white" Class="rz-pr-2">Number of votes:</RadzenText>
+                <RadzenText TextStyle="TextStyle.Body1" Style="color: white">@movie.Vote_count</RadzenText>
+            </RadzenStack>
+
+
         </RadzenStack>
     </RadzenStack>
 </RadzenStack>
+
 @code {
+
     [Parameter]
     public int Id { get; set; }
-    private string imageURL = "https://image.tmdb.org/t/p/w500";
-    private MovieResponse movie = new MovieResponse();
-    string title;
+
+    int value;
+    private MovieResponse movie;
+
 
     protected override async Task OnInitializedAsync()
     {
+        movie = new MovieResponse();
         movie = await _movieService.GetMovieAsync(Id);
-        imageURL += movie.Poster_path;
-        title = movie.Title;
     }
 
     private static string ToYear(string date) => DateTime.TryParse(date, out var dateTime) ? dateTime.Year.ToString() : string.Empty;
+
+    private async void RateMovie(int? id)
+    {
+    }
 
 }

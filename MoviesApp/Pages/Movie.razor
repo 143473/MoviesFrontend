@@ -1,4 +1,4 @@
-﻿@page "/Movie"
+﻿@page "/Movie/{Id:int}"
 @using MoviesApp.Services.Interfaces
 @using movies_api
 @inject IMovieService _movieService
@@ -20,7 +20,8 @@
     </RadzenStack>
 </RadzenStack>
 @code {
-    int Id = 603;
+    [Parameter]
+    public int Id { get; set; }
     private string imageURL = "https://image.tmdb.org/t/p/w500";
     private MovieResponse movie = new MovieResponse();
     string title;

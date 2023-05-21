@@ -31,10 +31,10 @@
             <RadzenStack Orientation="Orientation.Vertical" JustifyContent="JustifyContent.Start" Gap="0rem">
                 <RadzenText TextStyle="TextStyle.Body1"><strong>@movie.Title</strong></RadzenText>
                 <RadzenText TextStyle="TextStyle.Body2">@ToYear(movie.ReleaseDate)</RadzenText>
-                @if (details.Contains(movie.Id))
+                @if (details.Contains(movie.MovieId))
                 {
                     <RadzenLabel>@movie.Description</RadzenLabel>
-                    <label class="details-link" @onclick="() => details.Remove(movie.Id)">See less</label>
+                    <label class="details-link" @onclick="() => details.Remove(movie.MovieId)">See less</label>
                 }
                 else
                 {
@@ -42,7 +42,7 @@
                         @if (movie.Description?.Length > 100)
                         {
                             <text>...&nbsp;</text>
-                            <label class="details-link" @onclick="() => details.Add(movie.Id)">See more</label>
+                            <label class="details-link" @onclick="() => details.Add(movie.MovieId)">See more</label>
                         }
                     </RadzenLabel>
                 }

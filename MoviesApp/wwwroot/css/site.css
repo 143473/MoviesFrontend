@@ -3,6 +3,10 @@
 html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
     background-color: #04080f;
+    overflow: hidden;
+}
+h1, h2, h3{
+    color: white;
 }
 
 h1:focus {
@@ -17,6 +21,10 @@ a, .btn-link {
     color: #fff;
     background-color: #1b6ec2;
     border-color: #1861ac;
+}
+
+.identity-text{
+    color: white;
 }
 
 .content {

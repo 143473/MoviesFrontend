@@ -140,11 +140,43 @@ paths:
         200:
           description: Return the rating of a movie
           schema:
-            $ref: "#/definitions/Rating"
+            $ref: "#/definitions/RatingDto"
         401:
           description: Unauthorized
         404:
           description: Movie not found
+  '/movie/rated-movie':
+    post:
+      tags:
+        - movies
+      operationId: AddRatedMovie
+      parameters:
+        - name: ratedMovie
+          in: body
+          schema:
+            $ref: "#/definitions/RatedMovieDto"
+          required: true
+      responses:
+        201:
+          description: Created
+        400:
+          description: Bad Request
+  '/movie/rating':
+    post:
+      tags:
+        - movies
+      operationId: AddRating
+      parameters:
+        - name: rating
+          in: body
+          schema:
+            $ref: "#/definitions/RatedMovieDto"
+          required: true
+      responses:
+        201:
+          description: Created
+        400:
+          description: Bad Request
 definitions:
   MovieResponse:
     type: object
@@ -310,7 +342,7 @@ definitions:
     required:
       - MovieId
       - UserId
-  Rating:
+  RatingDto:
     type: object
     properties:
       movieId:
@@ -319,3 +351,12 @@ definitions:
         type: number
       votes:
         type: integer
+  RatedMovieDto:
+    type: object
+    properties:
+      ratedMovieId:
+        type: integer
+      userId:
+        type: string
+      rating:
+        type: number

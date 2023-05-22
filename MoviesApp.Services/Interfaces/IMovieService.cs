@@ -8,6 +8,8 @@ namespace MoviesApp.Services.Interfaces
         Task<MovieResponse> GetMovieAsync(int movie_id);
         Task<MoviesResponseDto> GetMoviesByTitleAsync(string title);
         
-        Task<Rating> GetMovieRatingAsync(int movieId);
+        Task<RatingDto> GetMovieRatingAsync(int movieId);
+        Task AddRatedMovieAsync(RatedMovieDto ratedMovie);
+        Task AddRatingAsync(RatedMovieDto ratedMovie);
     }
 }

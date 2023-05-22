@@ -5,37 +5,40 @@
 @using Radzen.Blazor
 @using Radzen
 
-<RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center" Wrap="FlexWrap.Wrap">
-    <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Start" Gap="1rem" Class="rz-p-4">
+@if (shouldRender == false)
+{
+    <p>Loading...</p>
+}
+else {
+    <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center" Wrap="FlexWrap.Wrap">
+        <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Start" Gap="1rem" Class="rz-p-4">
 
-        <RadzenImage Path="@movie.Poster_path" Style="border-radius: 1%;"/>
+            <RadzenImage Path="@movie.Poster_path" Style="border-radius: 1%;"/>
 
-        <RadzenStack Orientation="Orientation.Vertical" JustifyContent="JustifyContent.Start" Gap="0rem">
-            <RadzenText TextStyle="TextStyle.H3" Style="color: white">
-                <strong>@movie.Title</strong>
-            </RadzenText>
-            <RadzenText TextStyle="TextStyle.Body1" Style="color: white">@ToYear(movie.Release_date)</RadzenText>
-            <RadzenText TextStyle="TextStyle.Body1" Style="color: white">@movie.Overview</RadzenText>
-            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0rem">
-                <RadzenText TextStyle="TextStyle.H5" Style="color: white" Class="rz-pr-4">Rating:</RadzenText>
-                <RadzenText TextStyle="TextStyle.H4" Style="color: white" Class="rz-pr-4">@movie.Vote_average</RadzenText>
+            <RadzenStack Orientation="Orientation.Vertical" JustifyContent="JustifyContent.Start" Gap="0rem">
+                <RadzenText TextStyle="TextStyle.H3" Style="color: white">
+                    <strong>@movie.Title</strong>
+                </RadzenText>
+                <RadzenText TextStyle="TextStyle.Body1" Style="color: white">@ToYear(movie.Release_date)</RadzenText>
+                <RadzenText TextStyle="TextStyle.Body1" Style="color: white">@movie.Overview</RadzenText>
+                <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0rem">
+                    <RadzenText TextStyle="TextStyle.H5" Style="color: white" Class="rz-pr-4">Rating:</RadzenText>
+                    <RadzenText TextStyle="TextStyle.H4" Style="color: white" Class="rz-pr-4">@movie.Vote_average</RadzenText>
+                </RadzenStack>
+                <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0rem">
+                    <div class="rz-pr-4 rz-text-align-center">
+                        <RadzenRating TValue="int" Stars="10" Value=@value Change=@(args => value = args)/>
+                    </div>
+                    <RadzenButton Shade="Shade.Lighter" Click=@(() => RateMovie(@movie.Id)) Text="Rate" ButtonStyle="ButtonStyle.Light"/>
+                </RadzenStack>
+                <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0rem">
+                    <RadzenText TextStyle="TextStyle.Body1" Style="color: white" Class="rz-pr-2">Number of votes:</RadzenText>
+                    <RadzenText TextStyle="TextStyle.Body1" Style="color: white">@movie.Vote_count</RadzenText>
+                </RadzenStack>
             </RadzenStack>
-            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0rem">
-                <div class="rz-pr-4 rz-text-align-center">
-                    <RadzenRating TValue="int" Stars="10" Value=@value Change=@(args => value = args)/>
-                </div>
-                <RadzenButton Shade="Shade.Lighter" Click=@(() => RateMovie(@movie.Id)) Text="Rate" ButtonStyle="ButtonStyle.Light"/>
-            </RadzenStack>
-            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0rem">
-                <RadzenText TextStyle="TextStyle.Body1" Style="color: white" Class="rz-pr-2">Number of votes:</RadzenText>
-                <RadzenText TextStyle="TextStyle.Body1" Style="color: white">@movie.Vote_count</RadzenText>
-            </RadzenStack>
-
-
         </RadzenStack>
     </RadzenStack>
-</RadzenStack>
-
+}
 @code {
 
     [Parameter]
@@ -43,18 +46,51 @@
 
     int value;
     private MovieResponse movie;
+    private Rating rating;
+    private Boolean movieInDb = false;
+    private Boolean shouldRender = false;
 
 
     protected override async Task OnInitializedAsync()
     {
         movie = new MovieResponse();
+        rating = new Rating();
         movie = await _movieService.GetMovieAsync(Id);
+        rating = await _movieService.GetMovieRatingAsync(Id);
+        if (rating.MovieId == movie.Id)
+        {
+            movie.Vote_average = rating.RatingValue;
+            movieInDb = true;
+        }
+    }
+
+    protected override Task OnAfterRenderAsync(bool firstRender)
+    {
+        shouldRender = true;
+        return base.OnAfterRenderAsync(firstRender);
     }
 
     private static string ToYear(string date) => DateTime.TryParse(date, out var dateTime) ? dateTime.Year.ToString() : string.Empty;
 
     private async void RateMovie(int? id)
     {
+        if (value != 0)
+        {
+            if (!movieInDb)
+            {
+                // Add movie to the db
+                // Add rating to ratings
+            }
+            else
+            {
+                // Add rating to ratings
+            }
+        }
+        else
+        {
+            // Notify user that no value is selected
+        }
+        
     }
 
 }

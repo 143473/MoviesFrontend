@@ -24,4 +24,8 @@ public class MovieService : IMovieService
         return await _moviesClient.GetMoviesByTitleAsync(title);
     }
 
+    public async Task<Rating> GetMovieRatingAsync(int movieId)
+    {
+        return await _moviesClient.GetMovieRatingAsync(movieId);
+    }
 }

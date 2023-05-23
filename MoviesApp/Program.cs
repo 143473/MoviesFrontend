@@ -27,6 +27,7 @@ builder.Services
     .AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<IdentityUser>>();
 builder.Services.AddScoped<IMovieService, MovieService>();
 
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

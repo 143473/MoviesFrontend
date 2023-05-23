@@ -1,12 +1,12 @@
 # Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 
-name: Build and deploy container app to Azure Web App - dev-moviesappsep6
+name: Build and deploy container app to Azure Web App - moviesappsep6
 
 on:
   push:
     branches:
-      - dev
+      - master
   workflow_dispatch:
 
 jobs:
@@ -23,15 +23,15 @@ jobs:
       uses: docker/login-action@v2
       with:
         registry: https://sepmoviesregistry.azurecr.io/
-        username: ${{ secrets.AzureAppService_ContainerUsername_31e147b6b54d448e836e6e0f73016ba6 }}
-        password: ${{ secrets.AzureAppService_ContainerPassword_4ed0701ac7ca4ca6a56e8a01119bcbe3 }}
+        username: ${{ secrets.AzureAppService_ContainerUsername_1706d258fe784e3ca35853d4ceea8df8 }}
+        password: ${{ secrets.AzureAppService_ContainerPassword_5bca7e7811694f32bacf595791ea9603 }}
 
     - name: Build and push container image to registry
       uses: docker/build-push-action@v3
       with:
         push: true
-        tags: sepmoviesregistry.azurecr.io/${{ secrets.AzureAppService_ContainerUsername_31e147b6b54d448e836e6e0f73016ba6 }}/moviesapp-dev:${{ github.sha }}
-        file: ./Dockerfile-dev
+        tags: sepmoviesregistry.azurecr.io/${{ secrets.AzureAppService_ContainerUsername_1706d258fe784e3ca35853d4ceea8df8 }}/moviesapp:${{ github.sha }}
+        file: ./Dockerfile
 
   deploy:
     runs-on: ubuntu-latest
@@ -45,7 +45,7 @@ jobs:
       id: deploy-to-webapp
       uses: azure/webapps-deploy@v2
       with:
-        app-name: 'dev-moviesappsep6'
+        app-name: 'moviesappsep6'
         slot-name: 'production'
-        publish-profile: ${{ secrets.AzureAppService_PublishProfile_4d8d1e5f936048b1b90d4f6ab9be4815 }}
-        images: 'sepmoviesregistry.azurecr.io/${{ secrets.AzureAppService_ContainerUsername_31e147b6b54d448e836e6e0f73016ba6 }}/moviesapp-dev:${{ github.sha }}'
+        publish-profile: ${{ secrets.AzureAppService_PublishProfile_064d5c62aab8451091ab9cb54b91a539 }}
+        images: 'sepmoviesregistry.azurecr.io/${{ secrets.AzureAppService_ContainerUsername_1706d258fe784e3ca35853d4ceea8df8 }}/moviesapp:${{ github.sha }}'

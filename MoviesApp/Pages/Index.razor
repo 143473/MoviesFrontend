@@ -1,9 +1,92 @@
 ﻿@page "/"
+@using Radzen.Blazor
+@using MoviesApp.Services.Interfaces
+@using movies_api
+@using Radzen
+@inject IMovieService _movieService
+@inject NavigationManager _navigation
 
-<PageTitle>Index</PageTitle>
 
-<h1>Hello, world!</h1>
+<PageTitle>Home</PageTitle>
+<div class="sticky-top background">
+    <div class="logo-banner"></div>
 
-Welcome to your new app.
+    <div class="justify-content-center rz-display-flex">
+        <RadzenTextBox Placeholder="Search for a title..." class="w-75 rz-border-radius-6 rz-my-10 pl-3" Change="@(OnChange)"/>
+    </div>
+</div>
 
-<SurveyPrompt Title="How is Blazor working for you?"/>
+<RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center" Wrap="FlexWrap.Wrap">
+@foreach(var movie in moviesToDisplay.Results)
+{
+    <RadzenCard Class="rz-my-2 rz-mx-2" Style="width: 420px">
+        <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Start" Gap="1rem" Class="rz-p-4">
+            @if (string.IsNullOrWhiteSpace(movie.PosterPath))
+            {
+                <RadzenImage Path="Images/MissingImage.png" Style="width: 100px; height: 100px; border-radius: 1%;"/>
+            }
+            else
+            {
+                <RadzenImage Path="@movie.PosterPath" Style="width: 100px; height: 100px; border-radius: 1%;"/>
+            }
+            <RadzenStack Orientation="Orientation.Vertical" JustifyContent="JustifyContent.Start" Gap="0rem">
+                
+                <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.SpaceBetween">
+                    <RadzenText TextStyle="TextStyle.Body1"><strong>@movie.Title</strong></RadzenText>
+                    <RadzenImage hidden="false" Path="../Images/RedHeart.png" Style="width: 20px; height: 20px"></RadzenImage>
+                    <RadzenImage hidden="true" Path="../Images/EmptyHeart.png" Style="width: 23px; height: 20px"></RadzenImage>
+                </RadzenStack>
+
+                <RadzenText TextStyle="TextStyle.Body2">@ToYear(movie.ReleaseDate)</RadzenText>
+                <RadzenLabel Style="height: 60px; width: 250px; overflow-block: clip">@movie.Description</RadzenLabel>
+                <label class="details-link" @onclick="() => GoToMovie(movie.MovieId)">See more</label>
+            </RadzenStack>
+        </RadzenStack>
+    </RadzenCard>
+}
+</RadzenStack>
+
+@code
+{   
+    private MoviesResponseDto moviesToDisplay = new() { Results = Array.Empty<MovieDto>()};
+
+    private async Task OnChange(string title)
+    {
+        if (string.IsNullOrWhiteSpace(title))
+        {
+            moviesToDisplay.Results.Clear();
+            moviesToDisplay = await _movieService.GetFavoriteMovies();
+            return;
+        }
+        try
+        {
+            moviesToDisplay = await _movieService.GetMoviesByTitleAsync(title);
+            if (moviesToDisplay.Results.Count == 0)
+            {
+                SetResult("No results found");
+            }
+        }
+        catch (Exception)
+        {
+            SetResult("Any error has occured");
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        moviesToDisplay = await _movieService.GetFavoriteMovies();
+    }
+
+
+    private void SetResult(string message)
+    {
+        moviesToDisplay.Results = new List<MovieDto> { new() { Title = message } };
+    }
+
+    private static string ToYear(string date) => DateTime.TryParse(date, out var dateTime) ? dateTime.Year.ToString() : string.Empty;
+
+    private void GoToMovie(int? id)
+    {
+        _navigation.NavigateTo($"/Movie/{id}");
+    }
+}

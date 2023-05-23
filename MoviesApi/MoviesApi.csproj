@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+        <PackageReference Include="NSwag.MSBuild" Version="13.18.2" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Client\Generated\" />
+    </ItemGroup>
+
+    <Target Name="NSwag" BeforeTargets="Build">
+        <Exec Command="$(NSwagExe_Net60) run nswag.nswag" />
+    </Target>
+
+</Project>

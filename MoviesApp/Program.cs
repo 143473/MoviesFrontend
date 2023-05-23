@@ -6,13 +6,18 @@ using Microsoft.AspNetCore.Identity.UI;
 using Microsoft.EntityFrameworkCore;
 using MoviesApp.Areas.Identity;
 using MoviesApp.Data;
+using movies_api;
+using MoviesApp.Services.Interfaces;
+using MoviesApp.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddScoped<IMoviesClient>(_ => new MoviesClient() { BaseUrl = builder.Configuration.GetConnectionString("moviesapi") });
+
 // Add services to the container.
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+var connectionString = builder.Configuration.GetConnectionString("UsersDb");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlite(connectionString));
+    options.UseSqlServer(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddEntityFrameworkStores<ApplicationDbContext>();
@@ -20,7 +25,7 @@ builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services
     .AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<IdentityUser>>();
-builder.Services.AddSingleton<WeatherForecastService>();
+builder.Services.AddScoped<IMovieService, MovieService>();
 
 
 var app = builder.Build();

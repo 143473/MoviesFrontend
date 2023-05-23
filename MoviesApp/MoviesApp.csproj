@@ -9,15 +9,14 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <None Update="app.db" CopyToOutputDirectory="PreserveNewest" ExcludeFromSingleFile="true" />
+        <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="6.0.16" />
+        <PackageReference Include="Radzen.Blazor" Version="4.11.1" />
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="6.0.16" />
-        <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.16" />
-        <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="6.0.16" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="6.0.16" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.16" />
+      <ProjectReference Include="..\MoviesApi\MoviesApi.csproj" />
+      <ProjectReference Include="..\MoviesApp.Data\MoviesApp.Data.csproj" />
+      <ProjectReference Include="..\MoviesApp.Services\MoviesApp.Services.csproj" />
     </ItemGroup>
 
 </Project>

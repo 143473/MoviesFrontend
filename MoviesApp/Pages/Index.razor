@@ -33,8 +33,14 @@
                 
                 <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.SpaceBetween">
                     <RadzenText TextStyle="TextStyle.Body1"><strong>@movie.Title</strong></RadzenText>
-                    <RadzenImage hidden="false" Path="../Images/RedHeart.png" Style="width: 20px; height: 20px"></RadzenImage>
-                    <RadzenImage hidden="true" Path="../Images/EmptyHeart.png" Style="width: 23px; height: 20px"></RadzenImage>
+                    @if(!movie.IsFavorite)
+                    {
+                        <RadzenButton Icon="favorite" ButtonStyle="ButtonStyle.Light" Style="width: 30px; height: 30px; border-radius: 50%; border-color: red; color: red; background-color: white;"/>
+                    }
+                    else
+                    {
+                        <RadzenButton Icon="favorite_border" ButtonStyle="ButtonStyle.Success" Style="width: 30px; height: 30px; border-radius: 50%; border-color: black; color: black; background-color: white;"/>
+                    }
                 </RadzenStack>
 
                 <RadzenText TextStyle="TextStyle.Body2">@ToYear(movie.ReleaseDate)</RadzenText>

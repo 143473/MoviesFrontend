@@ -109,6 +109,11 @@ else
             movieRating = rating.RatingValue.Value;
             numberOfVotes = rating.Votes.Value;
         }
+        else
+        {
+            movieRating = movie.Vote_average.Value;
+            numberOfVotes = movie.Vote_count.Value;
+        }
     }
 
     private async void CheckRatingInDb()

@@ -9,6 +9,7 @@ using MoviesApp.Data;
 using movies_api;
 using MoviesApp.Services.Interfaces;
 using MoviesApp.Services;
+using Radzen;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,6 +29,7 @@ builder.Services
 
 builder.Services.AddScoped<IMovieService, MovieService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<NotificationService>();
 
 
 var app = builder.Build();

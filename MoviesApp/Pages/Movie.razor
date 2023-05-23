@@ -5,6 +5,8 @@
 @using Radzen.Blazor
 @using Radzen
 @using System.Security.Claims
+@using Microsoft.CodeAnalysis.VisualBasic.Syntax
+@inject NotificationService _notificationService
 
 @if (shouldRender == false)
 {
@@ -16,6 +18,7 @@
 }
 else
 {
+    <RadzenNotification/>
     <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center" Wrap="FlexWrap.Wrap">
         <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Start" Gap="1rem" Class="rz-p-4">
 
@@ -128,7 +131,15 @@ else
 
     private async void RateMovie(int? id)
     {
-        if (value != 0 & userId != null)
+        if (value == 0)
+        {
+            _notificationService.Notify(new NotificationMessage {Severity = NotificationSeverity.Warning, Summary = "No rating value selected", Duration = 4000});
+        }
+        else if (userId == null)
+        {
+            _notificationService.Notify(new NotificationMessage {Severity = NotificationSeverity.Warning, Summary = "Log in to rate", Duration = 4000});
+        }
+        else
         {
             loading = true;
             RatedMovieDto ratedMovie = new RatedMovieDto()
@@ -143,11 +154,8 @@ else
             CheckRatingInDb();
             await Task.Delay(1000);
             loading = false;
+            _notificationService.Notify(new NotificationMessage {Severity = NotificationSeverity.Success, Summary = "Rating Saved", Duration = 4000});
             StateHasChanged();
-        }
-        else
-        {
-    // Notify user that no value is selected
         }
     }
 

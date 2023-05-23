@@ -10,15 +10,16 @@
 <PageTitle>Home</PageTitle>
 <div class="sticky-top background">
     <div class="logo-banner"></div>
-
-    <div class="justify-content-center rz-display-flex">
+    <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center" Wrap="FlexWrap.Wrap">
         <RadzenTextBox Placeholder="Search for a title..." class="w-75 rz-border-radius-6 rz-my-10 pl-3" Change="@(OnChange)"/>
-    </div>
+        <RadzenText TextStyle="TextStyle.H3" Style="color: white; margin-bottom: 30px">@header</RadzenText>
+     </RadzenStack>
 </div>
-
 @if (shouldRender == false)
 {
-    <p>Loading...</p>
+    <div class="d-flex justify-content-center">
+        <div class="spinner-border" role="status"></div>
+    </div>
 }
 else
 {
@@ -39,19 +40,19 @@ else
 
                         <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.SpaceBetween">
                             <RadzenText TextStyle="TextStyle.Body1"><strong>@movie.Title</strong></RadzenText>
-                             @if (movie.MovieId != 0)
-                             {
+                            @if (movie.MovieId != 0)
+                            {
                                 <AuthorizeView>
                                     <RadzenButton Click="() => Favorite(movie)" Icon="@GetIcon(movie)" Style="border-radius: 50%; color: #507DBC; background-color: white;"/>
                                 </AuthorizeView>
-                             }
-                        </RadzenStack>
-                            @if (movie.MovieId != 0)
-                            {
-                                <RadzenText TextStyle="TextStyle.Body2">@ToYear(movie.ReleaseDate)</RadzenText>
-                                <RadzenLabel Style="height: 60px; width: 250px; overflow:clip">@movie.Description</RadzenLabel>
-                                <label class="details-link" @onclick="() => GoToMovie(movie.MovieId)">See more</label>  
                             }
+                        </RadzenStack>
+                        @if (movie.MovieId != 0)
+                        {
+                            <RadzenText TextStyle="TextStyle.Body2">@ToYear(movie.ReleaseDate)</RadzenText>
+                            <RadzenLabel Style="height: 60px; width: 250px; overflow:clip">@movie.Description</RadzenLabel>
+                            <label class="details-link" @onclick="() => GoToMovie(movie.MovieId)">See more</label>
+                        }
                     </RadzenStack>
                 </RadzenStack>
             </RadzenCard>
@@ -62,7 +63,8 @@ else
 {   
     private MoviesResponseDto moviesToDisplay = new() { Results = new List<MovieDto>()};
     private string? userId;
-    private bool shouldRender = false;
+    private bool shouldRender;
+    private string header = string.Empty;
     
     protected override async Task OnInitializedAsync()
     {   
@@ -86,6 +88,7 @@ else
         try
         {
             shouldRender = false;
+            header = "Search Results";
             moviesToDisplay = await _movieService.GetMoviesByTitleAsync(title, userId);
             if (moviesToDisplay.Results.Count == 0)
             {
@@ -121,8 +124,9 @@ else
     }
     
     private async Task GetTopFavorites()
-    {  
+    {
         shouldRender = false;
+        header = "Top Favorites";
         moviesToDisplay.Results.Clear();
         moviesToDisplay = await _movieService.GetTopFavoriteMovies(userId);
     }

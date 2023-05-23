@@ -33,7 +33,7 @@ else
                 </RadzenStack>
                 <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0rem">
                     <div class="rz-pr-4 rz-text-align-center">
-                        <RadzenRating TValue="int" Stars="10" Value=@value Change=@(args => value = args)/>
+                        <RadzenRating TValue="int" Stars="10" Value=@value Change=@(args => value = args)></RadzenRating>
                     </div>
                     <RadzenButton IsBusy="@loading" Shade="Shade.Lighter" Click=@(() => RateMovie(movie.Id)) Text="Rate" ButtonStyle="ButtonStyle.Light"/>
                 </RadzenStack>

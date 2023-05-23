@@ -43,7 +43,7 @@ else
                             @if (movie.MovieId != 0)
                             {
                                 <AuthorizeView>
-                                    <RadzenButton Click="() => Favorite(movie)" Icon="@GetIcon(movie)" Style="border-radius: 50%; color: #507DBC; background-color: white;"/>
+                                    <RadzenButton Click="() => Favorite(movie)" IsBusy="isBusy == movie.MovieId" Icon="@GetIcon(movie)" Style="border-radius: 50%; color: #507DBC; background-color: white;"/>
                                 </AuthorizeView>
                             }
                         </RadzenStack>
@@ -65,6 +65,7 @@ else
     private string? userId;
     private bool shouldRender;
     private string header = string.Empty;
+    private int isBusy;
     
     protected override async Task OnInitializedAsync()
     {   
@@ -113,13 +114,25 @@ else
         movie.IsFavorite = !movie.IsFavorite;
         FavoritesDto favorite = new() { MovieId = movie.MovieId, UserId = userId };
 
-        if (movie.IsFavorite)
+        try
         {
-            await _movieService.AddFavoriteMovieAsync(favorite);
+            isBusy = movie.MovieId;
+            if (movie.IsFavorite)
+            {
+                await _movieService.AddFavoriteMovieAsync(favorite);
+            }
+            else
+            {
+                await _movieService.RemoveFavoriteMovieAsync(favorite);
+            }
         }
-        else
+        catch (Exception)
         {
-            await _movieService.RemoveFavoriteMovieAsync(favorite);
+            movie.IsFavorite = !movie.IsFavorite;
+        }
+        finally
+        {
+            isBusy = 0;
         }
     }
     

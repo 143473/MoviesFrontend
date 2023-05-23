@@ -3,10 +3,9 @@
 @using MoviesApp.Services.Interfaces
 @using movies_api
 @using Radzen
-@using System.Security.Claims
 @inject IMovieService _movieService
+@inject IUserService _userService
 @inject NavigationManager _navigation
-
 
 <PageTitle>Home</PageTitle>
 <div class="sticky-top background">
@@ -40,21 +39,19 @@ else
 
                         <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.SpaceBetween">
                             <RadzenText TextStyle="TextStyle.Body1"><strong>@movie.Title</strong></RadzenText>
-                            <AuthorizeView>
-                                @if (movie.IsFavorite)
-                                {
-                                    <RadzenButton Click="() => RemoveFromFavorites(movie.MovieId)" Icon="favorite" ButtonStyle="ButtonStyle.Light" Style="width: 30px; height: 30px; border-radius: 50%; border-color: red; color: red; background-color: white;"/>
-                                }
-                                else
-                                {
-                                    <RadzenButton Click="() => AddToFavorites(movie.MovieId)" Icon="favorite_border" ButtonStyle="ButtonStyle.Success" Style="width: 30px; height: 30px; border-radius: 50%; border-color: black; color: black; background-color: white;"/>
-                                }
-                            </AuthorizeView>
+                             @if (movie.MovieId != 0)
+                             {
+                                <AuthorizeView>
+                                    <RadzenButton Click="() => Favorite(movie)" Icon="@GetIcon(movie)" Style="border-radius: 50%; color: #507DBC; background-color: white;"/>
+                                </AuthorizeView>
+                             }
                         </RadzenStack>
-
-                        <RadzenText TextStyle="TextStyle.Body2">@ToYear(movie.ReleaseDate)</RadzenText>
-                        <RadzenLabel Style="height: 60px; width: 250px; overflow:clip">@movie.Description</RadzenLabel>
-                        <label class="details-link" @onclick="() => GoToMovie(movie.MovieId)">See more</label>
+                            @if (movie.MovieId != 0)
+                            {
+                                <RadzenText TextStyle="TextStyle.Body2">@ToYear(movie.ReleaseDate)</RadzenText>
+                                <RadzenLabel Style="height: 60px; width: 250px; overflow:clip">@movie.Description</RadzenLabel>
+                                <label class="details-link" @onclick="() => GoToMovie(movie.MovieId)">See more</label>  
+                            }
                     </RadzenStack>
                 </RadzenStack>
             </RadzenCard>
@@ -63,20 +60,32 @@ else
 }
 @code
 {   
-    private MoviesResponseDto moviesToDisplay = new() { Results = Array.Empty<MovieDto>()};
+    private MoviesResponseDto moviesToDisplay = new() { Results = new List<MovieDto>()};
     private string? userId;
     private bool shouldRender = false;
     
-    private async Task OnChange(string title)
+    protected override async Task OnInitializedAsync()
+    {   
+        userId = _userService.GetUserId();
+        await GetTopFavorites();
+    }
+    
+    protected override Task OnAfterRenderAsync(bool firstRender)
     {
+        shouldRender = true;
+        return base.OnAfterRenderAsync(firstRender);
+    }
+
+    private async Task OnChange(string title)
+    {   
         if (string.IsNullOrWhiteSpace(title))
         {
-            moviesToDisplay.Results.Clear();
-            moviesToDisplay = await _movieService.GetTopFavoriteMovies(userId);
+            await GetTopFavorites();
             return;
         }
         try
         {
+            shouldRender = false;
             moviesToDisplay = await _movieService.GetMoviesByTitleAsync(title, userId);
             if (moviesToDisplay.Results.Count == 0)
             {
@@ -89,22 +98,6 @@ else
         }
     }
 
-    protected override async Task OnInitializedAsync()
-    {
-        moviesToDisplay = await _movieService.GetTopFavoriteMovies(userId);
-    }
-
-    protected override Task OnAfterRenderAsync(bool firstRender)
-     {
-        shouldRender = true;
-        return base.OnAfterRenderAsync(firstRender);
-     }
-
-    private void SetResult(string message)
-    {
-        moviesToDisplay.Results = new List<MovieDto> { new() { Title = message } };
-    }
-
     private static string ToYear(string date) => DateTime.TryParse(date, out var dateTime) ? dateTime.Year.ToString() : string.Empty;
 
     private void GoToMovie(int? id)
@@ -112,19 +105,35 @@ else
         _navigation.NavigateTo($"/Movie/{id}");
     }
     
-    private async void AddToFavorites(int movieId)
-    {   
-        FavoritesDto favorite = new() { MovieId = movieId, UserId = userId };
-        await _movieService.AddFavoriteMovieAsync(favorite);
+    private async Task Favorite(MovieDto movie)
+    {
+        movie.IsFavorite = !movie.IsFavorite;
+        FavoritesDto favorite = new() { MovieId = movie.MovieId, UserId = userId };
+
+        if (movie.IsFavorite)
+        {
+            await _movieService.AddFavoriteMovieAsync(favorite);
+        }
+        else
+        {
+            await _movieService.RemoveFavoriteMovieAsync(favorite);
+        }
     }
     
-    private async void RemoveFromFavorites(int movieId)
-    {   
-        FavoritesDto favorite = new() { MovieId = movieId, UserId = userId };
-        await _movieService.RemoveFavoriteMovieAsync(favorite);
+    private async Task GetTopFavorites()
+    {  
+        shouldRender = false;
+        moviesToDisplay.Results.Clear();
+        moviesToDisplay = await _movieService.GetTopFavoriteMovies(userId);
     }
-    private void SetUserId(AuthenticationState context)
+    
+    private void SetResult(string message)
     {
-        userId = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        moviesToDisplay.Results = new List<MovieDto> { new() { Title = message } };
+    }
+
+    private static string GetIcon(MovieDto movie)
+    { 
+        return movie.IsFavorite ? "favorite" : "favorite_border";
     }
 }

@@ -6,7 +6,15 @@ html, body {
     overflow: hidden;
 }
 h1, h2, h3{
-    color: white;
+    color: #DAE3E5;
+}
+
+.form-floating{
+    margin-bottom: 1em;
+}
+
+.nav-link, .nav-link:hover{
+    color: #DAE3E5;
 }
 
 h1:focus {

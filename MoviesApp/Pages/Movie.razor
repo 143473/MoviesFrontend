@@ -4,6 +4,7 @@
 @inject IMovieService _movieService
 @using Radzen.Blazor
 @using Radzen
+@using System.Security.Claims
 
 @if (shouldRender == false)
 {
@@ -38,6 +39,9 @@ else {
             </RadzenStack>
         </RadzenStack>
     </RadzenStack>
+    <AuthorizeView>
+        @{ SetUserId(context);};
+    </AuthorizeView>
     <p>Value is: @value</p>
 }
 @code {
@@ -50,6 +54,7 @@ else {
     private RatingDto rating;
     private Boolean movieInDb = false;
     private Boolean shouldRender = false;
+    private string? userId;
 
 
     protected override async Task OnInitializedAsync()
@@ -75,14 +80,14 @@ else {
 
     private async void RateMovie(int? id)
     {
-        if (value != 0)
+        if (value != 0 & userId != null)
         {
             // TODO: Get userId
             RatedMovieDto ratedMovie = new RatedMovieDto()
             {
                 RatedMovieId = id,
                 Rating = value,
-                UserId = "luis"
+                UserId = userId
             };
             
             await _movieService.AddRatingAsync(ratedMovie);
@@ -92,6 +97,11 @@ else {
             // Notify user that no value is selected
         }
         
+    }
+
+    private void SetUserId(AuthenticationState context)
+    {
+       userId = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
     }
 
 }

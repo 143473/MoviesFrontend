@@ -10,6 +10,7 @@
 
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="6.0.16" />
+        <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="6.0.13" />
         <PackageReference Include="Radzen.Blazor" Version="4.11.1" />
     </ItemGroup>
 
@@ -18,5 +19,4 @@
       <ProjectReference Include="..\MoviesApp.Data\MoviesApp.Data.csproj" />
       <ProjectReference Include="..\MoviesApp.Services\MoviesApp.Services.csproj" />
     </ItemGroup>
-
 </Project>

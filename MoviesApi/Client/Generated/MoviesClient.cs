@@ -1012,7 +1012,7 @@ namespace movies_api
                 throw new System.ArgumentNullException("movieId");
 
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/movie/rating/{movie_id}");
+            urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/movie/rating/{movieId}");
             urlBuilder_.Replace("{movieId}", System.Uri.EscapeDataString(ConvertToString(movieId, System.Globalization.CultureInfo.InvariantCulture)));
 
             var client_ = new System.Net.Http.HttpClient();

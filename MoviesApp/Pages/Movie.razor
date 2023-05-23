@@ -8,9 +8,14 @@
 
 @if (shouldRender == false)
 {
-    <p>Loading...</p>
+    <div class="d-flex justify-content-center">
+        <div class="spinner-border" role="status">
+            <span class="sr-only">Loading...</span>
+        </div>
+    </div>
 }
-else {
+else
+{
     <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center" Wrap="FlexWrap.Wrap">
         <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Start" Gap="1rem" Class="rz-p-4">
 
@@ -24,26 +29,57 @@ else {
                 <RadzenText TextStyle="TextStyle.Body1" Style="color: white">@movie.Overview</RadzenText>
                 <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0rem">
                     <RadzenText TextStyle="TextStyle.H5" Style="color: white" Class="rz-pr-4">Rating:</RadzenText>
-                    <RadzenText TextStyle="TextStyle.H4" Style="color: white" Class="rz-pr-4">@movie.Vote_average</RadzenText>
+                    <RadzenText TextStyle="TextStyle.H4" Style="color: white" Class="rz-pr-4">@movieRating.ToString("#.##")</RadzenText>
                 </RadzenStack>
                 <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0rem">
                     <div class="rz-pr-4 rz-text-align-center">
                         <RadzenRating TValue="int" Stars="10" Value=@value Change=@(args => value = args)/>
                     </div>
-                    <RadzenButton Shade="Shade.Lighter" Click=@(() => RateMovie(@movie.Id)) Text="Rate" ButtonStyle="ButtonStyle.Light"/>
+                    <RadzenButton IsBusy="@loading" Shade="Shade.Lighter" Click=@(() => RateMovie(movie.Id)) Text="Rate" ButtonStyle="ButtonStyle.Light"/>
                 </RadzenStack>
                 <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0rem">
                     <RadzenText TextStyle="TextStyle.Body1" Style="color: white" Class="rz-pr-2">Number of votes:</RadzenText>
-                    <RadzenText TextStyle="TextStyle.Body1" Style="color: white">@movie.Vote_count</RadzenText>
+                    <RadzenText TextStyle="TextStyle.Body1" Style="color: white">@numberOfVotes</RadzenText>
                 </RadzenStack>
+                <RadzenText TextStyle="TextStyle.H5" Style="color: white" Class="rz-pr-4">Top Cast:</RadzenText>
+                <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Start" Gap="0rem">
+
+                    <div class="card mx-4" style="width: 138px">
+                        <img class="card-img-top" src="https://www.themoviedb.org/t/p/w300_and_h450_bestv2/4D0PpNI0kmP58hgrwGC3wCjxhnm.jpg" alt="Card image cap">
+                        <div class="card-body">
+                            <h5 class="card-title">Keanu Reeves</h5>
+                            <p class="card-text">Character name</p>
+                            <!--<a href="#" class="btn btn-primary">Go somewhere</a>-->
+                        </div>
+                    </div>
+
+                    <div class="card mx-4" style="width: 138px">
+                        <img class="card-img-top" src="https://www.themoviedb.org/t/p/w300_and_h450_bestv2/4D0PpNI0kmP58hgrwGC3wCjxhnm.jpg" alt="Card image cap">
+                        <div class="card-body">
+                            <h5 class="card-title">Keanu Reeves</h5>
+                            <p class="card-text">Character name</p>
+                            <!--<a href="#" class="btn btn-primary">Go somewhere</a>-->
+                        </div>
+                    </div>
+                    <div class="card mx-4" style="width: 138px">
+                        <img class="card-img-top" src="https://www.themoviedb.org/t/p/w300_and_h450_bestv2/4D0PpNI0kmP58hgrwGC3wCjxhnm.jpg" alt="Card image cap">
+                        <div class="card-body">
+                            <h5 class="card-title">Keanu Reeves</h5>
+                            <p class="card-text">Character name</p>
+                            <!--<a href="#" class="btn btn-primary">Go somewhere</a>-->
+                        </div>
+                    </div>
+                </RadzenStack>
+
             </RadzenStack>
         </RadzenStack>
     </RadzenStack>
     <AuthorizeView>
-        @{ SetUserId(context);};
+        @{ SetUserId(context); }
+        ;
     </AuthorizeView>
-    <p>Value is: @value</p>
 }
+
 @code {
 
     [Parameter]
@@ -55,7 +91,9 @@ else {
     private Boolean movieInDb = false;
     private Boolean shouldRender = false;
     private string? userId;
-
+    private double movieRating;
+    private Boolean loading = false;
+    private int numberOfVotes;
 
     protected override async Task OnInitializedAsync()
     {
@@ -63,10 +101,20 @@ else {
         rating = new RatingDto();
         movie = await _movieService.GetMovieAsync(Id);
         rating = await _movieService.GetMovieRatingAsync(Id);
-        if (rating.MovieId == movie.Id)
+        if (rating.MovieId.Value == movie.Id)
         {
-            movie.Vote_average = rating.RatingValue;
-            movieInDb = true;
+            movieRating = rating.RatingValue.Value;
+            numberOfVotes = rating.Votes.Value;
+        }
+    }
+
+    private async void CheckRatingInDb()
+    {
+        rating = await _movieService.GetMovieRatingAsync(Id);
+        if (rating.MovieId.Value == movie.Id)
+        {
+            movieRating = rating.RatingValue.Value;
+            numberOfVotes = rating.Votes.Value;
         }
     }
 
@@ -82,26 +130,30 @@ else {
     {
         if (value != 0 & userId != null)
         {
-            // TODO: Get userId
+            loading = true;
             RatedMovieDto ratedMovie = new RatedMovieDto()
             {
                 RatedMovieId = id,
                 Rating = value,
                 UserId = userId
             };
-            
+
             await _movieService.AddRatingAsync(ratedMovie);
+
+            CheckRatingInDb();
+            await Task.Delay(1000);
+            loading = false;
+            StateHasChanged();
         }
         else
         {
-            // Notify user that no value is selected
+    // Notify user that no value is selected
         }
-        
     }
 
     private void SetUserId(AuthenticationState context)
     {
-       userId = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        userId = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
     }
 
 }

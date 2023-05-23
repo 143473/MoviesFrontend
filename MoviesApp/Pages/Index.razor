@@ -3,6 +3,7 @@
 @using MoviesApp.Services.Interfaces
 @using movies_api
 @using Radzen
+@using System.Security.Claims
 @inject IMovieService _movieService
 @inject NavigationManager _navigation
 
@@ -16,51 +17,67 @@
     </div>
 </div>
 
-<RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center" Wrap="FlexWrap.Wrap">
-@foreach(var movie in moviesToDisplay.Results)
+@if (shouldRender == false)
 {
-    <RadzenCard Class="rz-my-2 rz-mx-2" Style="width: 420px">
-        <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Start" Gap="1rem" Class="rz-p-4">
-            @if (string.IsNullOrWhiteSpace(movie.PosterPath))
-            {
-                <RadzenImage Path="Images/MissingImage.png" Style="width: 100px; height: 100px; border-radius: 1%;"/>
-            }
-            else
-            {
-                <RadzenImage Path="@movie.PosterPath" Style="width: 100px; height: 100px; border-radius: 1%;"/>
-            }
-            <RadzenStack Orientation="Orientation.Vertical" JustifyContent="JustifyContent.Start" Gap="0rem">
-                
-                <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.SpaceBetween">
-                    <RadzenText TextStyle="TextStyle.Body1"><strong>@movie.Title</strong></RadzenText>
-                    <RadzenImage hidden="false" Path="../Images/RedHeart.png" Style="width: 20px; height: 20px"></RadzenImage>
-                    <RadzenImage hidden="true" Path="../Images/EmptyHeart.png" Style="width: 23px; height: 20px"></RadzenImage>
-                </RadzenStack>
-
-                <RadzenText TextStyle="TextStyle.Body2">@ToYear(movie.ReleaseDate)</RadzenText>
-                <RadzenLabel Style="height: 60px; width: 250px; overflow:clip">@movie.Description</RadzenLabel>
-                <label class="details-link" @onclick="() => GoToMovie(movie.MovieId)">See more</label>
-            </RadzenStack>
-        </RadzenStack>
-    </RadzenCard>
+    <p>Loading...</p>
 }
-</RadzenStack>
+else
+{
+    <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center" Wrap="FlexWrap.Wrap">
+        @foreach (var movie in moviesToDisplay.Results)
+        {
+            <RadzenCard Class="rz-my-2 rz-mx-2" Style="width: 420px">
+                <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Start" Gap="1rem" Class="rz-p-4">
+                    @if (string.IsNullOrWhiteSpace(movie.PosterPath))
+                    {
+                        <RadzenImage Path="Images/MissingImage.png" Style="width: 100px; height: 100px; border-radius: 1%;"/>
+                    }
+                    else
+                    {
+                        <RadzenImage Path="@movie.PosterPath" Style="width: 100px; height: 100px; border-radius: 1%;"/>
+                    }
+                    <RadzenStack Orientation="Orientation.Vertical" JustifyContent="JustifyContent.Start" Gap="0rem">
 
+                        <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.SpaceBetween">
+                            <RadzenText TextStyle="TextStyle.Body1"><strong>@movie.Title</strong></RadzenText>
+                            <AuthorizeView>
+                                @if (movie.IsFavorite)
+                                {
+                                    <RadzenButton Click="() => RemoveFromFavorites(movie.MovieId)" Icon="favorite" ButtonStyle="ButtonStyle.Light" Style="width: 30px; height: 30px; border-radius: 50%; border-color: red; color: red; background-color: white;"/>
+                                }
+                                else
+                                {
+                                    <RadzenButton Click="() => AddToFavorites(movie.MovieId)" Icon="favorite_border" ButtonStyle="ButtonStyle.Success" Style="width: 30px; height: 30px; border-radius: 50%; border-color: black; color: black; background-color: white;"/>
+                                }
+                            </AuthorizeView>
+                        </RadzenStack>
+
+                        <RadzenText TextStyle="TextStyle.Body2">@ToYear(movie.ReleaseDate)</RadzenText>
+                        <RadzenLabel Style="height: 60px; width: 250px; overflow:clip">@movie.Description</RadzenLabel>
+                        <label class="details-link" @onclick="() => GoToMovie(movie.MovieId)">See more</label>
+                    </RadzenStack>
+                </RadzenStack>
+            </RadzenCard>
+        }
+    </RadzenStack>
+}
 @code
 {   
     private MoviesResponseDto moviesToDisplay = new() { Results = Array.Empty<MovieDto>()};
-
+    private string? userId;
+    private bool shouldRender = false;
+    
     private async Task OnChange(string title)
     {
         if (string.IsNullOrWhiteSpace(title))
         {
             moviesToDisplay.Results.Clear();
-            moviesToDisplay = await _movieService.GetFavoriteMovies();
+            moviesToDisplay = await _movieService.GetTopFavoriteMovies(userId);
             return;
         }
         try
         {
-            moviesToDisplay = await _movieService.GetMoviesByTitleAsync(title);
+            moviesToDisplay = await _movieService.GetMoviesByTitleAsync(title, userId);
             if (moviesToDisplay.Results.Count == 0)
             {
                 SetResult("No results found");
@@ -68,15 +85,20 @@
         }
         catch (Exception)
         {
-            SetResult("Any error has occured");
+            SetResult("An error has occured");
         }
     }
 
     protected override async Task OnInitializedAsync()
     {
-        moviesToDisplay = await _movieService.GetFavoriteMovies();
+        moviesToDisplay = await _movieService.GetTopFavoriteMovies(userId);
     }
 
+    protected override Task OnAfterRenderAsync(bool firstRender)
+     {
+        shouldRender = true;
+        return base.OnAfterRenderAsync(firstRender);
+     }
 
     private void SetResult(string message)
     {
@@ -88,5 +110,21 @@
     private void GoToMovie(int? id)
     {
         _navigation.NavigateTo($"/Movie/{id}");
+    }
+    
+    private async void AddToFavorites(int movieId)
+    {   
+        FavoritesDto favorite = new() { MovieId = movieId, UserId = userId };
+        await _movieService.AddFavoriteMovieAsync(favorite);
+    }
+    
+    private async void RemoveFromFavorites(int movieId)
+    {   
+        FavoritesDto favorite = new() { MovieId = movieId, UserId = userId };
+        await _movieService.RemoveFavoriteMovieAsync(favorite);
+    }
+    private void SetUserId(AuthenticationState context)
+    {
+        userId = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
     }
 }

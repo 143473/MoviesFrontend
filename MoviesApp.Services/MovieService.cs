@@ -18,15 +18,25 @@ public class MovieService : IMovieService
     {
         return await _moviesClient.GetMovieAsync(movie_id);
     }
-    
-    public async Task<MoviesResponseDto> GetMoviesByTitleAsync(string title)
+
+    public async Task AddFavoriteMovieAsync(FavoritesDto favoriteMovie)
     {
-        return await _moviesClient.GetMoviesByTitleAsync(title);
+        await _moviesClient.AddFavoriteMovieAsync(favoriteMovie);
+    }
+
+    public async Task RemoveFavoriteMovieAsync(FavoritesDto favoriteMovie)
+    {
+        await _moviesClient.DeleteFavoriteMovieAsync(favoriteMovie);
+    }
+
+    public async Task<MoviesResponseDto> GetMoviesByTitleAsync(string title, string? userId)
+    {
+        return await _moviesClient.GetMoviesByTitleAsync(title, userId);
     }
     
-    public async Task<MoviesResponseDto> GetFavoriteMovies()
+    public async Task<MoviesResponseDto> GetTopFavoriteMovies(string? userId)
     {
-        return await _moviesClient.GetTopFavoriteMoviesAsync();
+        return await _moviesClient.GetTopFavoriteMoviesAsync(userId);
     }
 
     public async Task<RatingDto> GetMovieRatingAsync(int movieId)

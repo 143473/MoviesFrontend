@@ -24,12 +24,13 @@
                     </NavLink>
                 </li>
                 <li class="nav-item d-flex d-inline-flex">
+                    <CascadingAuthenticationState>
                     <AuthorizeView>
                         <Authorized>
                             <NavLink class="nav-link btn btn-link" href="Identity/Account/Manage">
                                 <span aria-hidden="true"></span> Hello, @context.User.Identity?.Name!
                             </NavLink>
-                            
+
                             <form method="post" action="Identity/Account/LogOut">
                                 <button type="submit" class="nav-link btn btn-link">Log out</button>
                             </form>
@@ -43,6 +44,7 @@
                             </NavLink>
                         </NotAuthorized>
                     </AuthorizeView>
+                    </CascadingAuthenticationState>
                 </li>
             </ul>
         </div>

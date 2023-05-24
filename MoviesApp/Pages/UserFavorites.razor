@@ -1,0 +1,50 @@
+﻿@page "/favorites"
+@using MoviesApp.Services.Interfaces
+@using movies_api
+@inject IMovieService _movieService
+@inject IUserService _userService
+
+<MovieHeader Title="Favorites" Header="Your favorite movies"></MovieHeader>
+
+@if (shouldRender == false)
+{
+    <div class="d-flex justify-content-center">
+        <div class="spinner-border" role="status"></div>
+    </div>
+}
+else
+{
+    <MovieList Movies="@movies.Results" OnFavorite="movie => RemoveFavorite(movie)"></MovieList>
+}
+@code
+{   
+    private MoviesResponseDto movies = new() { Results = new List<MovieDto>()};
+    private string? userId;
+    private bool shouldRender;
+    
+    protected override async Task OnInitializedAsync()
+    {   
+        userId = _userService.GetUserId();
+        await GetFavorites();
+    }
+    
+    protected override Task OnAfterRenderAsync(bool firstRender)
+    {
+        shouldRender = true;
+        return base.OnAfterRenderAsync(firstRender);
+    }
+    
+    private async Task RemoveFavorite(MovieDto movie)
+    {
+        FavoritesDto favorite = new() { MovieId = movie.MovieId, UserId = userId };
+        await _movieService.RemoveFavoriteMovieAsync(favorite);
+        movies.Results.Remove(movie);
+    }
+    
+    private async Task GetFavorites()
+    {
+        shouldRender = false;
+        movies.Results.Clear();
+        movies = await _movieService.GetFavoriteMovies(userId);
+    }
+}

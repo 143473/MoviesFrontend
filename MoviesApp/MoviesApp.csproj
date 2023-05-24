@@ -19,4 +19,9 @@
       <ProjectReference Include="..\MoviesApp.Data\MoviesApp.Data.csproj" />
       <ProjectReference Include="..\MoviesApp.Services\MoviesApp.Services.csproj" />
     </ItemGroup>
+
+    <ItemGroup>
+      <_ContentIncludedByDefault Remove="Components\MovieHeader.razor" />
+      <_ContentIncludedByDefault Remove="Components\MovieList.razor" />
+    </ItemGroup>
 </Project>

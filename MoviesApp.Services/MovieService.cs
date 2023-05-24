@@ -1,6 +1,5 @@
 ﻿using MoviesApp.Services.Interfaces;
 using movies_api;
-using MoviesApp.Services.Interfaces;
 
 namespace MoviesApp.Services;
 
@@ -19,24 +18,29 @@ public class MovieService : IMovieService
         return await _moviesClient.GetMovieAsync(movie_id);
     }
 
-    public async Task AddFavoriteMovieAsync(FavoritesDto favoriteMovie)
+    public Task AddFavoriteMovieAsync(FavoritesDto favoriteMovie)
     {
-        await _moviesClient.AddFavoriteMovieAsync(favoriteMovie);
+         return _moviesClient.AddFavoriteMovieAsync(favoriteMovie);
     }
 
-    public async Task RemoveFavoriteMovieAsync(FavoritesDto favoriteMovie)
+    public Task RemoveFavoriteMovieAsync(FavoritesDto favoriteMovie)
     {
-        await _moviesClient.DeleteFavoriteMovieAsync(favoriteMovie);
+        return _moviesClient.DeleteFavoriteMovieAsync(favoriteMovie);
     }
 
-    public async Task<MoviesResponseDto> GetMoviesByTitleAsync(string title, string? userId)
+    public Task<MoviesResponseDto> GetMoviesByTitleAsync(string title, string? userId)
     {
-        return await _moviesClient.GetMoviesByTitleAsync(title, userId);
+        return _moviesClient.GetMoviesByTitleAsync(title, userId);
     }
     
-    public async Task<MoviesResponseDto> GetTopFavoriteMovies(string? userId)
+    public Task<MoviesResponseDto> GetTopFavoriteMovies(string? userId)
     {
-        return await _moviesClient.GetTopFavoriteMoviesAsync(userId);
+        return _moviesClient.GetTopFavoriteMoviesAsync(userId);
+    }
+    
+    public Task<MoviesResponseDto> GetFavoriteMovies(string? userId)
+    {
+        return _moviesClient.GetFavoriteMoviesAsync(userId);
     }
 
     public async Task<RatingDto> GetMovieRatingAsync(int movieId)

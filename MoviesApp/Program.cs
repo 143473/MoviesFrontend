@@ -14,6 +14,7 @@ using Radzen;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddScoped<IMoviesClient>(_ => new MoviesClient() { BaseUrl = builder.Configuration.GetConnectionString("moviesapi") });
+builder.Services.AddScoped<IPersonsClient>(_ => new PersonsClient() { BaseUrl = builder.Configuration.GetConnectionString("moviesapi") });
 
 // Add services to the container.
 var connectionString = builder.Configuration.GetConnectionString("UsersDb");
@@ -30,6 +31,7 @@ builder.Services
 builder.Services.AddScoped<IMovieService, MovieService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<NotificationService>();
+builder.Services.AddScoped<IPersonService, PersonService>();
 
 
 var app = builder.Build();

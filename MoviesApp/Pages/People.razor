@@ -1,9 +1,11 @@
 @page "/People"
 @using MoviesApp.Services.Interfaces
-@inject IPersonService PersonService
 @using Radzen.Blazor
 @using Radzen
 @using movies_api
+
+@inject IPersonService PersonService
+@inject NavigationManager NavigationManager
 
 @if (shouldRender == false)
 {
@@ -47,13 +49,15 @@ else
                     </RadzenText>
                     <RadzenText TextStyle="TextStyle.Body1" class="body-text">@_personDetailsDto.Popularity</RadzenText>
                 </RadzenStack>
-
-                <RadzenText TextStyle="TextStyle.Body1" Style="color: white">
-                    <strong>Number of movies: @_personMovieCreditsDto.Cast.Count</strong>
-                </RadzenText>
+                <RadzenStack Orientation="Orientation.Horizontal">
+                    <RadzenText TextStyle="TextStyle.Body1" Style="color: white">
+                        <strong>Movies average rating: </strong>
+                    </RadzenText>
+                    <RadzenText TextStyle="TextStyle.Body1" class="body-text">@GetAverageRating()</RadzenText>
+                </RadzenStack>
             </RadzenStack>
         </RadzenStack>
-        <RadzenTabs @bind-SelectedIndex=@selectedIndex Change=@OnChange RenderMode="TabRenderMode.Server" >
+        <RadzenTabs @bind-SelectedIndex=@selectedIndex Change=@OnChange RenderMode="TabRenderMode.Server">
             <Tabs>
                 @if (_personMovieCreditsDto.Cast != null || _personMovieCreditsDto.Cast.Any())
                 {
@@ -62,7 +66,7 @@ else
                             @foreach (var movie in _listOfMovies)
                             {
                                 <RadzenStack Orientation="Orientation.Vertical" JustifyContent="JustifyContent.Start" Gap="0.1em">
-                                    <RadzenStack >
+                                    <RadzenStack @onclick="() => GoToMovie(movie.Id)" Style="cursor: pointer;">
                                         <RadzenImage Path="@(movie.Poster_path ?? "Images/MissingImage.png")" Style="border-radius: 1%; height: 170px"/>
                                         <RadzenText TextStyle="TextStyle.Subtitle2" class="body-text"> @movie.Title</RadzenText>
                                         <RadzenText TextStyle="TextStyle.Caption" Style="color: #BBD1EA"> @movie.Release_date </RadzenText>
@@ -83,7 +87,7 @@ else
                                 if (movie.Job == job)
                                 {
                                     <RadzenStack Orientation="Orientation.Vertical" JustifyContent="JustifyContent.Start" Gap="0.1em">
-                                        <RadzenStack >
+                                        <RadzenStack @onclick="() => GoToMovie(movie.Id)" Style="cursor: pointer;">
                                             <RadzenImage Path="@(movie.Poster_path ?? "Images/MissingImage.png")" Style="border-radius: 1%; height: 170px"/>
                                             <RadzenText TextStyle="TextStyle.Subtitle2" class="body-text"> @movie.Title</RadzenText>
                                             <RadzenText TextStyle="TextStyle.Caption" Style="color: #BBD1EA"> @movie.Release_date </RadzenText>
@@ -136,10 +140,24 @@ else
     private void SetMovies()
     {
         _jobs = _personMovieCreditsDto.Crew.Select(a => a.Job).Distinct().ToList();
+        
         _personMovieCreditsDto.Crew = _personMovieCreditsDto.Crew.OrderByDescending(a => a.Popularity).ToList();
         _listOfMovies = _personMovieCreditsDto.Cast.ToList();
         _listOfMovies = _listOfMovies.OrderByDescending(a => a.Popularity)
             .Take(10).ToList();
+    }
+
+    private double GetAverageRating()
+    {
+        var totalMovies = _personMovieCreditsDto.Cast.Count + _personMovieCreditsDto.Crew.Count;
+        var sum = _personMovieCreditsDto.Crew.Sum(x => x.Vote_average) +
+                  _personMovieCreditsDto.Cast.Sum(x => x.Vote_average);
+        return Math.Round((double)sum / totalMovies, 2);
+    }
+    
+    private void GoToMovie(int? id)
+    {
+        NavigationManager.NavigateTo($"/Movie/{id}");
     }
 
 }

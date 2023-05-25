@@ -57,4 +57,9 @@ public class MovieService : IMovieService
     {
         await _moviesClient.AddRatingAsync(ratedMovie);
     }
+
+    public async Task<MoviesExtendedResponseDto> GetFilteredMoviesAsync(DateTimeOffset fromDate, DateTimeOffset toDate, SortBy sortBy)
+    {
+        return await _moviesClient.GetFilteredMoviesAsync(fromDate, toDate, sortBy);
+    }
 }

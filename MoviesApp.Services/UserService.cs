@@ -17,4 +17,16 @@ public class UserService : IUserService
     {
         return _signInManager.Context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
     }
+
+    public string GetUserName()
+    {
+        var name = _signInManager.Context.User.Identity?.Name;
+        if (name == null)
+        {
+           return string.Empty;
+        }
+        string[] parts = name.Split(new[]{ '@' });
+        name = parts[0];
+        return name;
+    }
 }

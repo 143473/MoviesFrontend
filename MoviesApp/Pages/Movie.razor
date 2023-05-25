@@ -107,7 +107,7 @@ else
     public int Id { get; set; }
 
     int value;
-    private MovieResponse movie;
+    private MovieResponseDto movie;
     private RatingDto rating;
     private Boolean movieInDb = false;
     private Boolean shouldRender = false;
@@ -119,7 +119,7 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        movie = new MovieResponse();
+        movie = new MovieResponseDto();
         rating = new RatingDto();
         movie = await _movieService.GetMovieAsync(Id);
         rating = await _movieService.GetMovieRatingAsync(Id);

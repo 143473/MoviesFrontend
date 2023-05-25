@@ -2,7 +2,6 @@
 @using MoviesApp.Services.Interfaces
 @using movies_api
 @using Radzen
-@using Radzen.Blazor
 @inject IMovieService _movieService
 @inject IUserService _userService
 @inject NotificationService _notificationService
@@ -22,7 +21,7 @@ else
 }
 @code
 {
-    private MoviesResponseDto movies = new() { Results = new List<MovieDto>()};
+    private MovieListDto movies = new() { Results = new List<MovieDto>()};
     private string? userId;
     private bool shouldRender;
     private string header = string.Empty;

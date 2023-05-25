@@ -40,6 +40,7 @@ else
         FavoritesDto favorite = new() { MovieId = movie.MovieId, UserId = userId };
         await _movieService.RemoveFavoriteMovieAsync(favorite);
         movies.Results.Remove(movie);
+        StateHasChanged();
     }
     
     private async Task GetFavorites()

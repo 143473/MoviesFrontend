@@ -23,7 +23,7 @@
                 @if (movie.MovieId != 0)
                 {
                     <AuthorizeView>
-                        <RadzenButton Click="@(() => Favorite(movie))" IsBusy="@(isBusy == movie.MovieId)" Icon="@GetIcon(movie)" Style="border-radius: 50%; color: #507DBC; background-color: white;"/>
+                        <FavoriteButton OnFavorite="@OnFavorite" Movie="movie"></FavoriteButton>
                     </AuthorizeView>
                 }
             </RadzenStack>
@@ -46,30 +46,10 @@
     [Parameter]
     public Func<MovieDto, Task> OnFavorite { get; set; } = null!;
 
-    private int? isBusy;
-
-    private async Task Favorite(MovieDto movie)
-    {
-        try
-        {
-            isBusy = movie.MovieId;
-            await OnFavorite(movie);
-        }
-        finally
-        {
-            isBusy = null;
-        }
-    }
-
     private static string ToYear(string date) => DateTime.TryParse(date, out var dateTime) ? dateTime.Year.ToString() : string.Empty;
 
     private void GoToMovie(int? id)
     {
         _navigation.NavigateTo($"/Movie/{id}");
-    }
-    
-    private static string GetIcon(MovieDto movie)
-    { 
-        return movie.IsFavorite ? "favorite" : "favorite_border";
     }
 }

@@ -1,0 +1,35 @@
+﻿@using movies_api
+@using Radzen
+@using Radzen.Blazor
+
+<RadzenButton Click="@(() => Favorite(Movie))" Icon="@GetIcon(Movie)" IsBusy="@(isBusy == Movie.MovieId)" Style="border-radius: 50%; color: #507DBC; background-color: white;"></RadzenButton>
+
+
+@code {
+    
+    [Parameter]
+    public Func<MovieDto, Task> OnFavorite { get; set; } = null!;
+    
+    [Parameter]
+    public MovieDto Movie { get; set; } = new();
+    
+    private int? isBusy;
+    
+    
+    private async Task Favorite(MovieDto movie)
+    {
+        try
+        {
+            isBusy = movie.MovieId;
+            await OnFavorite(movie);
+        }
+        finally
+        {
+            isBusy = null;
+        }
+    }
+    private static string GetIcon(MovieDto movie)
+    { 
+        return movie.IsFavorite ? "favorite" : "favorite_border";
+    }
+}

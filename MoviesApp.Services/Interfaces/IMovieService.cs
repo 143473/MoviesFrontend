@@ -13,5 +13,6 @@ namespace MoviesApp.Services.Interfaces
         Task AddRatedMovieAsync(RatedMovieDto ratedMovie);
         Task AddRatingAsync(RatedMovieDto ratedMovie);
         Task<MovieListDto> GetFavoriteMovies(string? userId);
+        Task<MovieCreditsResponseDto> GetMovieCreditsAsync(int movieId);
     }
 }

@@ -43,6 +43,11 @@ public class MovieService : IMovieService
         return _moviesClient.GetFavoriteMoviesAsync(userId);
     }
 
+    public Task<MovieCreditsResponseDto> GetMovieCreditsAsync(int movieId)
+    {
+        return _moviesClient.GetMovieCreditsAsync(movieId);
+    }
+
     public async Task<RatingDto> GetMovieRatingAsync(int movieId)
     {
         return await _moviesClient.GetMovieRatingAsync(movieId);

@@ -1,10 +1,15 @@
 ﻿@page "/"
 @using MoviesApp.Services.Interfaces
 @using movies_api
+@using Radzen
+@using Radzen.Blazor
 @inject IMovieService _movieService
 @inject IUserService _userService
+@inject NotificationService _notificationService
 
+<div class="container-fluid justify-content-center">
 <MovieHeader Title="Home" Header="@header" OnSearch="title => OnSearch(title)"></MovieHeader>
+</div>
 @if (shouldRender == false)
 {
     <div class="d-flex justify-content-center">
@@ -65,12 +70,17 @@ else
         try
         {
             if (movie.IsFavorite)
-            {
+            {   
+
                 await _movieService.AddFavoriteMovieAsync(favorite);
+                _notificationService.Notify(new NotificationMessage {Severity = NotificationSeverity.Info, Summary = "Movie saved in favorites", Duration = 4000});
+                
             }
             else
             {
                 await _movieService.RemoveFavoriteMovieAsync(favorite);
+                _notificationService.Notify(new NotificationMessage {Severity = NotificationSeverity.Info, Summary = "Movie removed from favorites", Duration = 4000});
+
             }
         }
         catch (Exception)
@@ -82,7 +92,7 @@ else
     private async Task GetTopFavorites()
     {
         shouldRender = false;
-        header = "Top Favorites";
+        header = "Popular Movies";
         movies.Results.Clear();
         movies = await _movieService.GetTopFavoriteMovies(userId);
     }

@@ -5,7 +5,6 @@
 @using Radzen.Blazor
 @using Radzen
 @using System.Security.Claims
-@using Microsoft.CodeAnalysis.VisualBasic.Syntax
 @inject NotificationService _notificationService
 
 @if (shouldRender == false)
@@ -18,7 +17,6 @@
 }
 else
 {
-    <RadzenNotification/>
     <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center" Wrap="FlexWrap.Wrap">
         <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Start" Gap="1rem" Class="rz-p-4">
 

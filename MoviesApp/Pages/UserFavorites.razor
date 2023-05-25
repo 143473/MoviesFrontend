@@ -5,7 +5,7 @@
 @inject IUserService _userService
 
 <MovieHeader Title="Favorites" Header="Your favorite movies"></MovieHeader>
-
+<AuthorizeView>
 @if (shouldRender == false)
 {
     <div class="d-flex justify-content-center">
@@ -16,6 +16,7 @@ else
 {
     <MovieList Movies="@movies.Results" OnFavorite="movie => RemoveFavorite(movie)"></MovieList>
 }
+</AuthorizeView>
 @code
 {   
     private MoviesResponseDto movies = new() { Results = new List<MovieDto>()};
@@ -45,6 +46,9 @@ else
     {
         shouldRender = false;
         movies.Results.Clear();
-        movies = await _movieService.GetFavoriteMovies(userId);
+        if (userId != null)
+        {
+            movies = await _movieService.GetFavoriteMovies(userId);
+        }
     }
 }

@@ -24,53 +24,73 @@ else
 
             <RadzenStack Orientation="Orientation.Vertical" JustifyContent="JustifyContent.Start" Gap="0rem">
                 <RadzenText TextStyle="TextStyle.H3" Style="color: white">
-                    <strong>@movie.Title</strong>
+                    <strong>@movie.Title</strong> <span style="color: gray">(@ToYear(movie.Release_date))</span>
                 </RadzenText>
-                <RadzenText TextStyle="TextStyle.Body1" Style="color: white">@ToYear(movie.Release_date)</RadzenText>
-                <RadzenText TextStyle="TextStyle.Body1" Style="color: white">@movie.Overview</RadzenText>
+                <RadzenText TextStyle="TextStyle.H6" Style="color: white; font-style: italic" Class="rz-mb-4">"@movie.Tagline"</RadzenText>
+                <RadzenText TextStyle="TextStyle.H5" Style="color: white" Class="rz-pr-4"><strong>Overview</strong></RadzenText>
+                <RadzenText TextStyle="TextStyle.Body1" Style="color: white" Class="rz-mb-4">@movie.Overview</RadzenText>
                 <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0rem">
-                    <RadzenText TextStyle="TextStyle.H5" Style="color: white" Class="rz-pr-4">Rating:</RadzenText>
-                    <RadzenText TextStyle="TextStyle.H4" Style="color: white" Class="rz-pr-4">@movieRating.ToString("#.##")</RadzenText>
+                    <RadzenText TextStyle="TextStyle.H5" Style="color: white" Class="rz-pr-4"><strong>Rating</strong></RadzenText>
                 </RadzenStack>
                 <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0rem">
+                    <RadzenText TextStyle="TextStyle.H4" Style="color: white" Class="rz-pr-4">@movieRating.ToString("#.##")</RadzenText>
                     <div class="rz-pr-4 rz-text-align-center">
                         <RadzenRating TValue="int" Stars="10" Value=@value Change=@(args => value = args)></RadzenRating>
                     </div>
                     <RadzenButton IsBusy="@loading" Shade="Shade.Lighter" Click=@(() => RateMovie(movie.Id)) Text="Rate" ButtonStyle="ButtonStyle.Light"/>
                 </RadzenStack>
                 <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0rem">
-                    <RadzenText TextStyle="TextStyle.Body1" Style="color: white" Class="rz-pr-2">Number of votes:</RadzenText>
-                    <RadzenText TextStyle="TextStyle.Body1" Style="color: white">@numberOfVotes</RadzenText>
+                    <RadzenText TextStyle="TextStyle.Body1" Style="color: white" Class="rz-pr-2 rz-mb-4">Votes</RadzenText>
+                    <RadzenText TextStyle="TextStyle.Body1" Style="color: white" Class="rz-mb-4">@numberOfVotes</RadzenText>
                 </RadzenStack>
-                <RadzenText TextStyle="TextStyle.H5" Style="color: white" Class="rz-pr-4">Top Cast:</RadzenText>
-                <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Start" Gap="0rem">
-
-                    <div class="card mx-4" style="width: 138px">
-                        <img class="card-img-top" src="https://www.themoviedb.org/t/p/w300_and_h450_bestv2/4D0PpNI0kmP58hgrwGC3wCjxhnm.jpg" alt="Card image cap">
-                        <div class="card-body">
-                            <h5 class="card-title">Keanu Reeves</h5>
-                            <p class="card-text">Character name</p>
-                            <!--<a href="#" class="btn btn-primary">Go somewhere</a>-->
+                <RadzenText TextStyle="TextStyle.H5" Style="color: white" Class="rz-pr-4 rz-mb-4"><strong>Details</strong></RadzenText>
+                <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0rem">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-sm">
+                                <p Style="color: white; margin: 0px" Class="rz-pr-4">
+                                    <strong>Status</strong>
+                                </p>
+                                <p Style="color: white" Class="rz-pr-4">@movie.Status</p>
+                            </div>
+                            <div class="col-sm">
+                                <p Style="color: white; margin: 0px" Class="rz-pr-4">
+                                    <strong>Original Language</strong>
+                                </p>
+                                <p Style="color: white" Class="rz-pr-4">@movie.Original_language</p>
+                            </div>
                         </div>
-                    </div>
+                        <div class="row">
+                            <div class="col-sm">
+                                <p Style="color: white; margin: 0px" Class="rz-pr-4">
+                                    <strong>Genres</strong>
+                                </p>
+                                 <p Style="color: white" Class="rz-pr-4">@genres</p>
+                            </div>
+                            </div>
+                        <div class="row">
+                            <div class="col-sm">
+                                <p Style="color: white; margin: 0px" Class="rz-pr-4">
+                                    <strong>Budget</strong>
+                                </p>
+                                <p Style="color: white" Class="rz-pr-4">@movie.Budget</p>
+                            </div>
+                            <div class="col-sm">
+                                <p Style="color: white; margin: 0px" Class="rz-pr-4">
+                                    <strong>Revenue</strong>
+                                </p>
+                                <p Style="color: white" Class="rz-pr-4">@movie.Revenue</p>
+                            </div>
 
-                    <div class="card mx-4" style="width: 138px">
-                        <img class="card-img-top" src="https://www.themoviedb.org/t/p/w300_and_h450_bestv2/4D0PpNI0kmP58hgrwGC3wCjxhnm.jpg" alt="Card image cap">
-                        <div class="card-body">
-                            <h5 class="card-title">Keanu Reeves</h5>
-                            <p class="card-text">Character name</p>
-                            <!--<a href="#" class="btn btn-primary">Go somewhere</a>-->
-                        </div>
-                    </div>
-                    <div class="card mx-4" style="width: 138px">
-                        <img class="card-img-top" src="https://www.themoviedb.org/t/p/w300_and_h450_bestv2/4D0PpNI0kmP58hgrwGC3wCjxhnm.jpg" alt="Card image cap">
-                        <div class="card-body">
-                            <h5 class="card-title">Keanu Reeves</h5>
-                            <p class="card-text">Character name</p>
-                            <!--<a href="#" class="btn btn-primary">Go somewhere</a>-->
                         </div>
                     </div>
                 </RadzenStack>
+
+                <RadzenText TextStyle="TextStyle.H5" Style="color: white" Class="rz-pr-4">Budget: @movie.Budget</RadzenText>
+
+                <RadzenText TextStyle="TextStyle.H5" Style="color: white" Class="rz-pr-4">Duration:@movie.Runtime</RadzenText>
+                <RadzenText TextStyle="TextStyle.H5" Style="color: white" Class="rz-pr-4">Revenue:@movie.Revenue</RadzenText>
+
 
             </RadzenStack>
         </RadzenStack>
@@ -95,6 +115,7 @@ else
     private double movieRating;
     private Boolean loading = false;
     private int numberOfVotes;
+    private string genres = "DO THE GENRESDTO";
 
     protected override async Task OnInitializedAsync()
     {

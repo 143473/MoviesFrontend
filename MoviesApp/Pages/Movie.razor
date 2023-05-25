@@ -23,14 +23,18 @@ else
             <RadzenImage Path="@movie.Poster_path" Style="border-radius: 1%;"/>
 
             <RadzenStack Orientation="Orientation.Vertical" JustifyContent="JustifyContent.Start" Gap="0rem">
-                <RadzenText TextStyle="TextStyle.H3" Style="color: white">
+                <RadzenText TextStyle="TextStyle.H3" Style="color: white" Class="rz-mb-5">
                     <strong>@movie.Title</strong> <span style="color: gray">(@ToYear(movie.Release_date))</span>
                 </RadzenText>
-                <RadzenText TextStyle="TextStyle.H6" Style="color: white; font-style: italic" Class="rz-mb-4">"@movie.Tagline"</RadzenText>
-                <RadzenText TextStyle="TextStyle.H5" Style="color: white" Class="rz-pr-4"><strong>Overview</strong></RadzenText>
-                <RadzenText TextStyle="TextStyle.Body1" Style="color: white" Class="rz-mb-4">@movie.Overview</RadzenText>
+                <RadzenText TextStyle="TextStyle.H6" Style="color: white; font-style: italic" Class="rz-mb-7">"@movie.Tagline"</RadzenText>
+                <RadzenText TextStyle="TextStyle.H5" Style="color: white" Class="rz-pr-4">
+                    <strong>Overview</strong>
+                </RadzenText>
+                <RadzenText TextStyle="TextStyle.Body1" Style="color: white" Class="rz-mb-7">@movie.Overview</RadzenText>
                 <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0rem">
-                    <RadzenText TextStyle="TextStyle.H5" Style="color: white" Class="rz-pr-4"><strong>Rating</strong></RadzenText>
+                    <RadzenText TextStyle="TextStyle.H5" Style="color: white" Class="rz-pr-4">
+                        <strong>Rating</strong>
+                    </RadzenText>
                 </RadzenStack>
                 <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0rem">
                     <RadzenText TextStyle="TextStyle.H4" Style="color: white" Class="rz-pr-4">@movieRating.ToString("#.##")</RadzenText>
@@ -40,13 +44,15 @@ else
                     <RadzenButton IsBusy="@loading" Shade="Shade.Lighter" Click=@(() => RateMovie(movie.Id)) Text="Rate" ButtonStyle="ButtonStyle.Light"/>
                 </RadzenStack>
                 <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0rem">
-                    <RadzenText TextStyle="TextStyle.Body1" Style="color: white" Class="rz-pr-2 rz-mb-4">Votes</RadzenText>
-                    <RadzenText TextStyle="TextStyle.Body1" Style="color: white" Class="rz-mb-4">@numberOfVotes</RadzenText>
+                    <RadzenText TextStyle="TextStyle.Body1" Style="color: white" Class="rz-pr-2 rz-mb-7">Votes</RadzenText>
+                    <RadzenText TextStyle="TextStyle.Body1" Style="color: white" Class="rz-mb-7">@numberOfVotes</RadzenText>
                 </RadzenStack>
-                <RadzenText TextStyle="TextStyle.H5" Style="color: white" Class="rz-pr-4 rz-mb-4"><strong>Details</strong></RadzenText>
+                <RadzenText TextStyle="TextStyle.H5" Style="color: white" Class="rz-pr-4 rz-mb-5">
+                    <strong>Details</strong>
+                </RadzenText>
                 <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0rem">
-                    <div class="container">
-                        <div class="row">
+                    <div class="container" style="padding-left: 0">
+                        <div class="row" >
                             <div class="col-sm">
                                 <p Style="color: white; margin: 0px" Class="rz-pr-4">
                                     <strong>Status</strong>
@@ -57,7 +63,29 @@ else
                                 <p Style="color: white; margin: 0px" Class="rz-pr-4">
                                     <strong>Original Language</strong>
                                 </p>
-                                <p Style="color: white" Class="rz-pr-4">@movie.Original_language</p>
+                                <p Style="color: white" Class="rz-pr-4">@ToOriginalLanguage(movie.Original_language)</p>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm">
+                                <p Style="color: white; margin: 0px" Class="rz-pr-4">
+                                    <strong>Budget</strong>
+                                </p>
+                                <p Style="color: white" Class="rz-pr-4">$@movie.Budget</p>
+                            </div>
+                            <div class="col-sm">
+                                <p Style="color: white; margin: 0px" Class="rz-pr-4">
+                                    <strong>Revenue</strong>
+                                </p>
+                                <p Style="color: white" Class="rz-pr-4">$@movie.Revenue</p>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm">
+                                <p Style="color: white; margin: 0px" Class="rz-pr-4">
+                                    <strong>Runtime</strong>
+                                </p>
+                                <p Style="color: white" Class="rz-pr-4">@movie.Runtime minutes</p>
                             </div>
                         </div>
                         <div class="row">
@@ -65,36 +93,14 @@ else
                                 <p Style="color: white; margin: 0px" Class="rz-pr-4">
                                     <strong>Genres</strong>
                                 </p>
-                                 <p Style="color: white" Class="rz-pr-4">@genres</p>
+                                <p Style="color: white" Class="rz-pr-4">@genres</p>
                             </div>
-                            </div>
-                        <div class="row">
-                            <div class="col-sm">
-                                <p Style="color: white; margin: 0px" Class="rz-pr-4">
-                                    <strong>Budget</strong>
-                                </p>
-                                <p Style="color: white" Class="rz-pr-4">@movie.Budget</p>
-                            </div>
-                            <div class="col-sm">
-                                <p Style="color: white; margin: 0px" Class="rz-pr-4">
-                                    <strong>Revenue</strong>
-                                </p>
-                                <p Style="color: white" Class="rz-pr-4">@movie.Revenue</p>
-                            </div>
-
                         </div>
                     </div>
                 </RadzenStack>
-
-                <RadzenText TextStyle="TextStyle.H5" Style="color: white" Class="rz-pr-4">Budget: @movie.Budget</RadzenText>
-
-                <RadzenText TextStyle="TextStyle.H5" Style="color: white" Class="rz-pr-4">Duration:@movie.Runtime</RadzenText>
-                <RadzenText TextStyle="TextStyle.H5" Style="color: white" Class="rz-pr-4">Revenue:@movie.Revenue</RadzenText>
-
-
             </RadzenStack>
-        </RadzenStack>
-    </RadzenStack>
+             </RadzenStack>
+                        </RadzenStack>
     <AuthorizeView>
         @{ SetUserId(context); }
         ;
@@ -115,7 +121,8 @@ else
     private double movieRating;
     private Boolean loading = false;
     private int numberOfVotes;
-    private string genres = "DO THE GENRESDTO";
+    private string genres = "No genres available";
+    int selectedIndex = 0;
 
     protected override async Task OnInitializedAsync()
     {
@@ -132,6 +139,10 @@ else
         {
             movieRating = movie.Vote_average.Value;
             numberOfVotes = movie.Vote_count.Value;
+        }
+        if (movie.Genres != null)
+        {
+            genres = String.Join(", ", movie.Genres.Select(g => g.Name));
         }
     }
 
@@ -186,6 +197,15 @@ else
     private void SetUserId(AuthenticationState context)
     {
         userId = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+    }
+
+    private static string ToOriginalLanguage(string language)
+    {
+        return language == "en" ? "English" : "No language available";
+    }
+    
+    void OnChange(int index)
+    {
     }
 
 }

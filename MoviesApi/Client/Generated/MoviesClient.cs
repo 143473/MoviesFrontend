@@ -467,7 +467,7 @@ namespace movies_api
         /// </remarks>
         /// <returns>Returns a movie</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<MovieResponse> GetMovieAsync(int movie_id, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken));
+        System.Threading.Tasks.Task<MovieResponseDto> GetMovieAsync(int movie_id, string userId = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken));
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <remarks>
@@ -475,7 +475,7 @@ namespace movies_api
         /// </remarks>
         /// <returns>Returns a list of movies</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<MoviesResponseDto> GetMoviesByTitleAsync(string title, string userId = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken));
+        System.Threading.Tasks.Task<MovieListDto> GetMoviesByTitleAsync(string title, string userId = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken));
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Favorite movie created</returns>
@@ -485,7 +485,7 @@ namespace movies_api
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Return a list of favorite movies for a specific user</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<MoviesResponseDto> GetFavoriteMoviesAsync(string userId, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken));
+        System.Threading.Tasks.Task<MovieListDto> GetFavoriteMoviesAsync(string userId, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken));
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Favorite movie deleted</returns>
@@ -495,7 +495,7 @@ namespace movies_api
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Return a list of top favorite movies</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<MoviesResponseDto> GetTopFavoriteMoviesAsync(string userId = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken));
+        System.Threading.Tasks.Task<MovieListDto> GetTopFavoriteMoviesAsync(string userId = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken));
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Return the rating of a movie</returns>
@@ -552,14 +552,19 @@ namespace movies_api
         /// </remarks>
         /// <returns>Returns a movie</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<MovieResponse> GetMovieAsync(int movie_id, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
+        public virtual async System.Threading.Tasks.Task<MovieResponseDto> GetMovieAsync(int movie_id, string userId = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
         {
             if (movie_id == null)
                 throw new System.ArgumentNullException("movie_id");
 
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/movie/{movie_id}");
+            urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/movie/{movie_id}?");
             urlBuilder_.Replace("{movie_id}", System.Uri.EscapeDataString(ConvertToString(movie_id, System.Globalization.CultureInfo.InvariantCulture)));
+            if (userId != null)
+            {
+                urlBuilder_.Append(System.Uri.EscapeDataString("userId") + "=").Append(System.Uri.EscapeDataString(ConvertToString(userId, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
+            }
+            urlBuilder_.Length--;
 
             var client_ = new System.Net.Http.HttpClient();
             var disposeClient_ = true;
@@ -593,7 +598,7 @@ namespace movies_api
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
-                            var objectResponse_ = await ReadObjectResponseAsync<MovieResponse>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            var objectResponse_ = await ReadObjectResponseAsync<MovieResponseDto>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
@@ -638,7 +643,7 @@ namespace movies_api
         /// </remarks>
         /// <returns>Returns a list of movies</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<MoviesResponseDto> GetMoviesByTitleAsync(string title, string userId = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
+        public virtual async System.Threading.Tasks.Task<MovieListDto> GetMoviesByTitleAsync(string title, string userId = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
         {
             if (title == null)
                 throw new System.ArgumentNullException("title");
@@ -684,7 +689,7 @@ namespace movies_api
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
-                            var objectResponse_ = await ReadObjectResponseAsync<MoviesResponseDto>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            var objectResponse_ = await ReadObjectResponseAsync<MovieListDto>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
@@ -794,7 +799,7 @@ namespace movies_api
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Return a list of favorite movies for a specific user</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<MoviesResponseDto> GetFavoriteMoviesAsync(string userId, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
+        public virtual async System.Threading.Tasks.Task<MovieListDto> GetFavoriteMoviesAsync(string userId, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
         {
             if (userId == null)
                 throw new System.ArgumentNullException("userId");
@@ -836,7 +841,7 @@ namespace movies_api
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
-                            var objectResponse_ = await ReadObjectResponseAsync<MoviesResponseDto>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            var objectResponse_ = await ReadObjectResponseAsync<MovieListDto>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
@@ -934,7 +939,7 @@ namespace movies_api
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>Return a list of top favorite movies</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<MoviesResponseDto> GetTopFavoriteMoviesAsync(string userId = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
+        public virtual async System.Threading.Tasks.Task<MovieListDto> GetTopFavoriteMoviesAsync(string userId = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
         {
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/movies/top-favorites?");
@@ -976,7 +981,7 @@ namespace movies_api
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
-                            var objectResponse_ = await ReadObjectResponseAsync<MoviesResponseDto>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            var objectResponse_ = await ReadObjectResponseAsync<MovieListDto>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
@@ -1768,7 +1773,7 @@ namespace movies_api
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.18.2.0 (NJsonSchema v10.8.0.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial class MovieResponse
+    public partial class MovieResponseDto
     {
         [Newtonsoft.Json.JsonProperty("adult", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public bool? Adult { get; set; }
@@ -1844,6 +1849,9 @@ namespace movies_api
 
         [Newtonsoft.Json.JsonProperty("vote_count", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int? Vote_count { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("isFavorite", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool? IsFavorite { get; set; }
 
     }
 
@@ -1943,7 +1951,7 @@ namespace movies_api
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.18.2.0 (NJsonSchema v10.8.0.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial class MoviesResponseDto
+    public partial class MovieListDto
     {
         [Newtonsoft.Json.JsonProperty("Results", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Collections.Generic.ICollection<MovieDto> Results { get; set; }

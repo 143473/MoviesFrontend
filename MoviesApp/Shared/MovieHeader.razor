@@ -1,0 +1,25 @@
+﻿@using Radzen
+@using Radzen.Blazor
+<div class="sticky-top background">
+    <div class="logo-banner" ></div>
+    <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center" Wrap="FlexWrap.Wrap">
+        @if (OnSearch != null)
+        {
+            <RadzenTextBox Placeholder="Search for a title..." class="w-75 rz-border-radius-6 rz-my-10 pl-3" Change="@OnSearch"/>            
+        }
+        <RadzenText TextStyle="TextStyle.H3" Style="color: white; margin-bottom: 30px"><strong>@Header</strong></RadzenText>
+    </RadzenStack>
+</div>
+
+@code {
+    [Parameter]
+    public string? Title { get; set; }
+    
+    [Parameter]
+    public string? Header { get; set; }
+    
+    [Parameter]
+    public Func<string, Task>? OnSearch { get; set; }
+
+    private string title = string.Empty;
+}

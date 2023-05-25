@@ -7,7 +7,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\MoviesApi\MoviesApi.csproj" />
+        <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="6.0.16" />
+        <ProjectReference Include="..\MoviesApi\MoviesApi.csproj" />
     </ItemGroup>
 
 </Project>

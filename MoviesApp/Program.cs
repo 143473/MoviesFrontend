@@ -9,10 +9,12 @@ using MoviesApp.Data;
 using movies_api;
 using MoviesApp.Services.Interfaces;
 using MoviesApp.Services;
+using Radzen;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddScoped<IMoviesClient>(_ => new MoviesClient() { BaseUrl = builder.Configuration.GetConnectionString("moviesapi") });
+builder.Services.AddScoped<IPersonsClient>(_ => new PersonsClient() { BaseUrl = builder.Configuration.GetConnectionString("moviesapi") });
 
 // Add services to the container.
 var connectionString = builder.Configuration.GetConnectionString("UsersDb");
@@ -25,7 +27,11 @@ builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services
     .AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<IdentityUser>>();
+
 builder.Services.AddScoped<IMovieService, MovieService>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<NotificationService>();
+builder.Services.AddScoped<IPersonService, PersonService>();
 
 
 var app = builder.Build();

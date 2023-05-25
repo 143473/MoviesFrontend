@@ -1,0 +1,75 @@
+﻿@using movies_api
+@using Radzen
+@using Radzen.Blazor
+@inject NavigationManager _navigation
+
+<RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center" Wrap="FlexWrap.Wrap">
+@foreach (var movie in Movies)
+{
+    <RadzenCard Class="rz-my-2 rz-mx-2" Style="width: 420px">
+        <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Start" Gap="1rem" Class="rz-p-4">
+        @if (string.IsNullOrWhiteSpace(movie.PosterPath))
+        {
+            <RadzenImage Path="Images/MissingImage.png" Style="width: 100px; height: 100px; border-radius: 1%;"/>
+        }
+        else
+        {
+            <RadzenImage Path="@movie.PosterPath" Style="width: 100px; height: 100px; border-radius: 1%;"/>
+        }
+        <RadzenStack Orientation="Orientation.Vertical" JustifyContent="JustifyContent.Start" Gap="0rem">
+
+            <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.SpaceBetween">
+                <RadzenText TextStyle="TextStyle.Body1"><strong>@movie.Title</strong></RadzenText>
+                @if (movie.MovieId != 0)
+                {
+                    <AuthorizeView>
+                        <RadzenButton Click="@(() => Favorite(movie))" IsBusy="@(isBusy == movie.MovieId)" Icon="@GetIcon(movie)" Style="border-radius: 50%; color: #507DBC; background-color: white;"/>
+                    </AuthorizeView>
+                }
+            </RadzenStack>
+            @if (movie.MovieId != 0)
+            {
+                <RadzenText TextStyle="TextStyle.Body2">@ToYear(movie.ReleaseDate)</RadzenText>
+                <RadzenLabel Style="height: 60px; width: 250px; overflow:clip">@movie.Description</RadzenLabel>
+                <label class="details-link" @onclick="() => GoToMovie(movie.MovieId)">See more</label>
+            }
+            </RadzenStack>
+        </RadzenStack>
+    </RadzenCard>
+}
+</RadzenStack>
+
+@code {
+    [Parameter]
+    public ICollection<MovieDto> Movies { get; set; } = new List<MovieDto>();
+
+    [Parameter]
+    public Func<MovieDto, Task> OnFavorite { get; set; } = null!;
+
+    private int? isBusy;
+
+    private async Task Favorite(MovieDto movie)
+    {
+        try
+        {
+            isBusy = movie.MovieId;
+            await OnFavorite(movie);
+        }
+        finally
+        {
+            isBusy = null;
+        }
+    }
+
+    private static string ToYear(string date) => DateTime.TryParse(date, out var dateTime) ? dateTime.Year.ToString() : string.Empty;
+
+    private void GoToMovie(int? id)
+    {
+        _navigation.NavigateTo($"/Movie/{id}");
+    }
+    
+    private static string GetIcon(MovieDto movie)
+    { 
+        return movie.IsFavorite ? "favorite" : "favorite_border";
+    }
+}

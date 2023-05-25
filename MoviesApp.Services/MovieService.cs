@@ -1,6 +1,5 @@
 ﻿using MoviesApp.Services.Interfaces;
 using movies_api;
-using MoviesApp.Services.Interfaces;
 
 namespace MoviesApp.Services;
 
@@ -18,15 +17,30 @@ public class MovieService : IMovieService
     {
         return await _moviesClient.GetMovieAsync(movie_id);
     }
-    
-    public async Task<MoviesResponseDto> GetMoviesByTitleAsync(string title)
+
+    public Task AddFavoriteMovieAsync(FavoritesDto favoriteMovie)
     {
-        return await _moviesClient.GetMoviesByTitleAsync(title);
+         return _moviesClient.AddFavoriteMovieAsync(favoriteMovie);
+    }
+
+    public Task RemoveFavoriteMovieAsync(FavoritesDto favoriteMovie)
+    {
+        return _moviesClient.DeleteFavoriteMovieAsync(favoriteMovie);
+    }
+
+    public Task<MoviesResponseDto> GetMoviesByTitleAsync(string title, string? userId)
+    {
+        return _moviesClient.GetMoviesByTitleAsync(title, userId);
     }
     
-    public async Task<MoviesResponseDto> GetFavoriteMovies()
+    public Task<MoviesResponseDto> GetTopFavoriteMovies(string? userId)
     {
-        return await _moviesClient.GetTopFavoriteMoviesAsync();
+        return _moviesClient.GetTopFavoriteMoviesAsync(userId);
+    }
+    
+    public Task<MoviesResponseDto> GetFavoriteMovies(string? userId)
+    {
+        return _moviesClient.GetFavoriteMoviesAsync(userId);
     }
 
     public async Task<RatingDto> GetMovieRatingAsync(int movieId)

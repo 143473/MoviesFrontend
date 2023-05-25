@@ -1,92 +1,104 @@
 ﻿@page "/"
-@using Radzen.Blazor
 @using MoviesApp.Services.Interfaces
 @using movies_api
 @using Radzen
+@using Radzen.Blazor
 @inject IMovieService _movieService
-@inject NavigationManager _navigation
+@inject IUserService _userService
+@inject NotificationService _notificationService
 
-
-<PageTitle>Home</PageTitle>
-<div class="sticky-top background">
-    <div class="logo-banner"></div>
-
-    <div class="justify-content-center rz-display-flex">
-        <RadzenTextBox Placeholder="Search for a title..." class="w-75 rz-border-radius-6 rz-my-10 pl-3" Change="@(OnChange)"/>
-    </div>
+<div class="container-fluid justify-content-center">
+<MovieHeader Title="Home" Header="@header" OnSearch="title => OnSearch(title)"></MovieHeader>
 </div>
-
-<RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center" Wrap="FlexWrap.Wrap">
-@foreach(var movie in moviesToDisplay.Results)
+@if (shouldRender == false)
 {
-    <RadzenCard Class="rz-my-2 rz-mx-2" Style="width: 420px">
-        <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Start" Gap="1rem" Class="rz-p-4">
-            @if (string.IsNullOrWhiteSpace(movie.PosterPath))
-            {
-                <RadzenImage Path="Images/MissingImage.png" Style="width: 100px; height: 100px; border-radius: 1%;"/>
-            }
-            else
-            {
-                <RadzenImage Path="@movie.PosterPath" Style="width: 100px; height: 100px; border-radius: 1%;"/>
-            }
-            <RadzenStack Orientation="Orientation.Vertical" JustifyContent="JustifyContent.Start" Gap="0rem">
-                
-                <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.SpaceBetween">
-                    <RadzenText TextStyle="TextStyle.Body1"><strong>@movie.Title</strong></RadzenText>
-                    <RadzenImage hidden="false" Path="../Images/RedHeart.png" Style="width: 20px; height: 20px"></RadzenImage>
-                    <RadzenImage hidden="true" Path="../Images/EmptyHeart.png" Style="width: 23px; height: 20px"></RadzenImage>
-                </RadzenStack>
-
-                <RadzenText TextStyle="TextStyle.Body2">@ToYear(movie.ReleaseDate)</RadzenText>
-                <RadzenLabel Style="height: 60px; width: 250px; overflow-block: clip">@movie.Description</RadzenLabel>
-                <label class="details-link" @onclick="() => GoToMovie(movie.MovieId)">See more</label>
-            </RadzenStack>
-        </RadzenStack>
-    </RadzenCard>
+    <div class="d-flex justify-content-center">
+        <div class="spinner-border" role="status"></div>
+    </div>
 }
-</RadzenStack>
-
+else
+{
+    <MovieList Movies="@movies.Results" OnFavorite="movie => Favorite(movie)"></MovieList>
+}
 @code
-{   
-    private MoviesResponseDto moviesToDisplay = new() { Results = Array.Empty<MovieDto>()};
-
-    private async Task OnChange(string title)
+{
+    private MoviesResponseDto movies = new() { Results = new List<MovieDto>()};
+    private string? userId;
+    private bool shouldRender;
+    private string header = string.Empty;
+    
+    protected override async Task OnInitializedAsync()
+    {   
+        userId = _userService.GetUserId();
+        await GetTopFavorites();
+    }
+    
+    protected override Task OnAfterRenderAsync(bool firstRender)
     {
+        shouldRender = true;
+        return base.OnAfterRenderAsync(firstRender);
+    }
+
+    private async Task OnSearch(string title)
+    {   
         if (string.IsNullOrWhiteSpace(title))
         {
-            moviesToDisplay.Results.Clear();
-            moviesToDisplay = await _movieService.GetFavoriteMovies();
+            await GetTopFavorites();
             return;
         }
         try
         {
-            moviesToDisplay = await _movieService.GetMoviesByTitleAsync(title);
-            if (moviesToDisplay.Results.Count == 0)
+            shouldRender = false;
+            header = "Search Results";
+            movies = await _movieService.GetMoviesByTitleAsync(title, userId);
+            if (movies.Results.Count == 0)
             {
                 SetResult("No results found");
             }
         }
         catch (Exception)
         {
-            SetResult("Any error has occured");
+            SetResult("An error has occured");
         }
     }
 
-    protected override async Task OnInitializedAsync()
+    private async Task Favorite(MovieDto movie)
     {
-        moviesToDisplay = await _movieService.GetFavoriteMovies();
+        movie.IsFavorite = !movie.IsFavorite;
+        FavoritesDto favorite = new() { MovieId = movie.MovieId, UserId = userId };
+
+        try
+        {
+            if (movie.IsFavorite)
+            {   
+
+                await _movieService.AddFavoriteMovieAsync(favorite);
+                _notificationService.Notify(new NotificationMessage {Severity = NotificationSeverity.Info, Summary = "Movie saved in favorites", Duration = 4000});
+                
+            }
+            else
+            {
+                await _movieService.RemoveFavoriteMovieAsync(favorite);
+                _notificationService.Notify(new NotificationMessage {Severity = NotificationSeverity.Info, Summary = "Movie removed from favorites", Duration = 4000});
+
+            }
+        }
+        catch (Exception)
+        {
+            movie.IsFavorite = !movie.IsFavorite;
+        }
     }
-
-
+    
+    private async Task GetTopFavorites()
+    {
+        shouldRender = false;
+        header = "Popular Movies";
+        movies.Results.Clear();
+        movies = await _movieService.GetTopFavoriteMovies(userId);
+    }
+    
     private void SetResult(string message)
     {
-        moviesToDisplay.Results = new List<MovieDto> { new() { Title = message } };
-    }
-
-    private static string ToYear(string date) => DateTime.TryParse(date, out var dateTime) ? dateTime.Year.ToString() : string.Empty;
-
-    private void GoToMovie(int? id)
-    {
-        _navigation.NavigateTo($"/Movie/{id}");
+        movies.Results = new List<MovieDto> { new() { Title = message } };
     }
 }

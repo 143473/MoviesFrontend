@@ -1,0 +1,145 @@
+@page "/People"
+@using MoviesApp.Services.Interfaces
+@inject IPersonService PersonService
+@using Radzen.Blazor
+@using Radzen
+@using movies_api
+
+@if (shouldRender == false)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <RadzenStack Orientation="Orientation.Vertical" JustifyContent="JustifyContent.Center">
+        <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center">
+            <RadzenStack Gap="1rem" Class="rz-p-4">
+                <RadzenImage Path="@_personDetailsDto.Profile_path" Style="width: auto; height: 650px; border-radius: 1%;"/>
+            </RadzenStack>
+            <RadzenStack Orientation="Orientation.Vertical" Gap="1rem" Class="rz-p-4">
+                <RadzenText TextStyle="TextStyle.DisplayH2" Style="color: white">
+                    <strong>@_personDetailsDto.Name</strong>
+                </RadzenText>
+                <RadzenText TextStyle="TextStyle.Body2" class="body-text" Style="height: 300px; overflow:scroll;">
+                    @_personDetailsDto.Biography
+                </RadzenText>
+                <RadzenStack Orientation="Orientation.Horizontal">
+                    <RadzenText TextStyle="TextStyle.Body1" Style="color: white">
+                        <strong>Born:</strong>
+                    </RadzenText>
+                    <RadzenText TextStyle="TextStyle.Body1" class="body-text">@_personDetailsDto.Birthday</RadzenText>
+                </RadzenStack>
+                <RadzenStack Orientation="Orientation.Horizontal">
+                    <RadzenText TextStyle="TextStyle.Body1" Style="color: white">
+                        <strong>Birth Place:</strong>
+                    </RadzenText>
+                    <RadzenText TextStyle="TextStyle.Body1" class="body-text">@_personDetailsDto.Place_of_birth</RadzenText>
+                </RadzenStack>
+                <RadzenStack Orientation="Orientation.Horizontal">
+                    <RadzenText TextStyle="TextStyle.Body1" Style="color: white">
+                        <strong>Gender:</strong>
+                    </RadzenText>
+                    <RadzenText TextStyle="TextStyle.Body1" class="body-text">@_personDetailsDto.Gender</RadzenText>
+                </RadzenStack>
+                <RadzenStack Orientation="Orientation.Horizontal">
+                    <RadzenText TextStyle="TextStyle.Body1" Style="color: white">
+                        <strong>Popularity:</strong>
+                    </RadzenText>
+                    <RadzenText TextStyle="TextStyle.Body1" class="body-text">@_personDetailsDto.Popularity</RadzenText>
+                </RadzenStack>
+
+                <RadzenText TextStyle="TextStyle.Body1" Style="color: white">
+                    <strong>Number of movies: @_personMovieCreditsDto.Cast.Count</strong>
+                </RadzenText>
+            </RadzenStack>
+        </RadzenStack>
+        <RadzenTabs @bind-SelectedIndex=@selectedIndex Change=@OnChange RenderMode="TabRenderMode.Server" >
+            <Tabs>
+                @if (_personMovieCreditsDto.Cast != null || _personMovieCreditsDto.Cast.Any())
+                {
+                    <RadzenTabsItem Text="Actor" Style="background-color: #04080F">
+                        <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Start" Style="overflow: scroll">
+                            @foreach (var movie in _listOfMovies)
+                            {
+                                <RadzenStack Orientation="Orientation.Vertical" JustifyContent="JustifyContent.Start" Gap="0.1em">
+                                    <RadzenStack >
+                                        <RadzenImage Path="@(movie.Poster_path ?? "Images/MissingImage.png")" Style="border-radius: 1%; height: 170px"/>
+                                        <RadzenText TextStyle="TextStyle.Subtitle2" class="body-text"> @movie.Title</RadzenText>
+                                        <RadzenText TextStyle="TextStyle.Caption" Style="color: #BBD1EA"> @movie.Release_date </RadzenText>
+                                    </RadzenStack>
+                                </RadzenStack>
+                            }
+                        </RadzenStack>
+                    </RadzenTabsItem>
+                }
+
+                @foreach (var job in _jobs)
+                {
+                    <RadzenTabsItem Text=@job Style="background-color: #04080F">
+                        <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Start" Style="overflow: scroll">
+
+                            @foreach (var movie in _personMovieCreditsDto.Crew)
+                            {
+                                if (movie.Job == job)
+                                {
+                                    <RadzenStack Orientation="Orientation.Vertical" JustifyContent="JustifyContent.Start" Gap="0.1em">
+                                        <RadzenStack >
+                                            <RadzenImage Path="@(movie.Poster_path ?? "Images/MissingImage.png")" Style="border-radius: 1%; height: 170px"/>
+                                            <RadzenText TextStyle="TextStyle.Subtitle2" class="body-text"> @movie.Title</RadzenText>
+                                            <RadzenText TextStyle="TextStyle.Caption" Style="color: #BBD1EA"> @movie.Release_date </RadzenText>
+                                        </RadzenStack>
+                                    </RadzenStack>
+                                }
+                            }
+                        </RadzenStack>
+                    </RadzenTabsItem>
+                }
+            </Tabs>
+        </RadzenTabs>
+
+    </RadzenStack>
+}
+
+@code {
+    private bool shouldRender = false;
+    private PersonDetailsDTO _personDetailsDto;
+    private PersonMovieCreditsDTO _personMovieCreditsDto;
+    private int personId = 11701;
+    private List<PersonMovieDTO> _listOfMovies;
+    private List<string> _jobs;
+    int selectedIndex = 0;
+
+    void OnChange(int index)
+    {
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        _jobs = new List<string>();
+        _personDetailsDto = new PersonDetailsDTO();
+        _personMovieCreditsDto = new PersonMovieCreditsDTO();
+        _listOfMovies = new List<PersonMovieDTO>();
+
+
+        _personDetailsDto = await PersonService.GetPerson(personId);
+        _personMovieCreditsDto = await PersonService.GetPersonMovieCredits(personId);
+
+        SetMovies();
+    }
+
+    protected override Task OnAfterRenderAsync(bool firstRender)
+    {
+        shouldRender = true;
+        return base.OnAfterRenderAsync(firstRender);
+    }
+
+    private void SetMovies()
+    {
+        _jobs = _personMovieCreditsDto.Crew.Select(a => a.Job).Distinct().ToList();
+        _personMovieCreditsDto.Crew = _personMovieCreditsDto.Crew.OrderByDescending(a => a.Popularity).ToList();
+        _listOfMovies = _personMovieCreditsDto.Cast.ToList();
+        _listOfMovies = _listOfMovies.OrderByDescending(a => a.Popularity)
+            .Take(10).ToList();
+    }
+
+}

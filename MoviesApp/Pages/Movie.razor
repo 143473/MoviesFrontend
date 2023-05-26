@@ -4,7 +4,7 @@
 @inject IMovieService _movieService
 @using Radzen.Blazor
 @using Radzen
-@using System.Security.Claims
+@inject IUserService _userService
 @inject NotificationService _notificationService
 
 @if (shouldRender == false)
@@ -18,14 +18,17 @@
 else
 {
     <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center" Wrap="FlexWrap.Wrap">
-        <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Start" Gap="1rem" Class="rz-p-4">
+        <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Start" Gap="3rem" Class="rz-p-4">
 
             <RadzenImage Path="@movie.Poster_path" Style="border-radius: 1%;"/>
 
             <RadzenStack Orientation="Orientation.Vertical" JustifyContent="JustifyContent.Start" Gap="0rem">
-                <RadzenText TextStyle="TextStyle.H3" Style="color: white" Class="rz-mb-5">
-                    <strong>@movie.Title</strong> <span style="color: gray">(@ToYear(movie.Release_date))</span>
-                </RadzenText>
+                <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.SpaceBetween">
+                    <RadzenText TextStyle="TextStyle.H3" Style="color: white" Class="rz-mb-5">
+                        <strong>@movie.Title</strong> <span style="color: gray">(@ToYear(movie.Release_date))</span>
+                    </RadzenText>
+                    <FavoriteButton OnFavoriteSingle="m => Favorite(movie)" MovieSingle="movie" ></FavoriteButton>
+                </RadzenStack>
                 <RadzenText TextStyle="TextStyle.H6" Style="color: white; font-style: italic" Class="rz-mb-7">"@movie.Tagline"</RadzenText>
                 <RadzenText TextStyle="TextStyle.H5" Style="color: white" Class="rz-pr-4">
                     <strong>Overview</strong>
@@ -52,7 +55,7 @@ else
                 </RadzenText>
                 <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0rem">
                     <div class="container" style="padding-left: 0">
-                        <div class="row" >
+                        <div class="row">
                             <div class="col-sm">
                                 <p Style="color: white; margin: 0px" Class="rz-pr-4">
                                     <strong>Status</strong>
@@ -99,12 +102,43 @@ else
                     </div>
                 </RadzenStack>
             </RadzenStack>
-             </RadzenStack>
-                        </RadzenStack>
-    <AuthorizeView>
-        @{ SetUserId(context); }
-        ;
-    </AuthorizeView>
+        </RadzenStack>
+    </RadzenStack>
+    <RadzenTabs @bind-SelectedIndex=@selectedIndex Change=@OnChange RenderMode="TabRenderMode.Server">
+        <Tabs>
+            @if (movieCredits.Cast != null || movieCredits.Cast.Any() || movieCredits.Crew != null || movieCredits.Crew.Any())
+            {
+                <RadzenTabsItem Text="Actors" Style="background-color: #04080F; font-weight: bold;">
+                    <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Start" Style="overflow: scroll">
+                        @foreach (var actor in cast)
+                        {
+                            <RadzenStack Orientation="Orientation.Vertical" JustifyContent="JustifyContent.Start" Gap="0.1em">
+                                <RadzenStack >
+                                    <RadzenImage Path="@(actor.Profile_path ?? "Images/MissingImage.png")" Style="border-radius: 1%; height: 170px"/>
+                                    <RadzenText TextStyle="TextStyle.Subtitle2" class="body-text"> @actor.Name</RadzenText>
+                                    <RadzenText TextStyle="TextStyle.Caption" Style="color: #BBD1EA"> @actor.Character </RadzenText>
+                                </RadzenStack>
+                            </RadzenStack>
+                        }
+                    </RadzenStack>
+                </RadzenTabsItem>
+                <RadzenTabsItem Text="Directors" Style="background-color: #04080F; font-weight: bold;">
+                    <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Start" Style="overflow: scroll">
+                        @foreach (var director in directors)
+                        {
+                            <RadzenStack Orientation="Orientation.Vertical" JustifyContent="JustifyContent.Start" Gap="0.1em">
+                                <RadzenStack >
+                                    <RadzenImage Path="@(director.Profile_path ?? "Images/MissingImage.png")" Style="border-radius: 1%; height: 170px"/>
+                                    <RadzenText TextStyle="TextStyle.Subtitle2" class="body-text"> @director.Name</RadzenText>
+                                    <RadzenText TextStyle="TextStyle.Caption" Style="color: #BBD1EA"> @director.Job </RadzenText>
+                                </RadzenStack>
+                            </RadzenStack>
+                        }
+                    </RadzenStack>
+                </RadzenTabsItem>
+            }
+        </Tabs>
+    </RadzenTabs>
 }
 
 @code {
@@ -123,12 +157,16 @@ else
     private int numberOfVotes;
     private string genres = "No genres available";
     int selectedIndex = 0;
+    MovieCreditsResponseDto movieCredits;
+    List<MovieCastDto> cast = new List<MovieCastDto>();
+    List<MovieCrewDto> directors = new List<MovieCrewDto>();
 
     protected override async Task OnInitializedAsync()
-    {
+    {   
+        SetUserId();
         movie = new MovieResponseDto();
         rating = new RatingDto();
-        movie = await _movieService.GetMovieAsync(Id);
+        movie = await _movieService.GetMovieAsync(userId, Id);
         rating = await _movieService.GetMovieRatingAsync(Id);
         if (rating.MovieId.Value == movie.Id)
         {
@@ -144,6 +182,11 @@ else
         {
             genres = String.Join(", ", movie.Genres.Select(g => g.Name));
         }
+
+        movieCredits = await _movieService.GetMovieCreditsAsync(Id);
+
+        cast = movieCredits.Cast.OrderByDescending(c => c.Popularity).ToList();
+        directors =  movieCredits.Crew.Where(c => c.Job == "Director").ToList();
     }
 
     private async void CheckRatingInDb()
@@ -194,16 +237,43 @@ else
         }
     }
 
-    private void SetUserId(AuthenticationState context)
+    private void SetUserId()
     {
-        userId = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        userId = _userService.GetUserId();
+    }
+    
+    private async Task Favorite(MovieResponseDto movie)
+    {
+        movie.IsFavorite = !movie.IsFavorite;
+        FavoritesDto favorite = new() { MovieId = movie.Id, UserId = userId };
+
+        try
+        {
+            if (movie.IsFavorite.Value)
+            {   
+
+                await _movieService.AddFavoriteMovieAsync(favorite);
+                _notificationService.Notify(new NotificationMessage {Severity = NotificationSeverity.Info, Summary = "Movie saved in favorites", Duration = 4000});
+                
+            }
+            else
+            {
+                await _movieService.RemoveFavoriteMovieAsync(favorite);
+                _notificationService.Notify(new NotificationMessage {Severity = NotificationSeverity.Info, Summary = "Movie removed from favorites", Duration = 4000});
+
+            }
+        }
+        catch (Exception)
+        {
+            movie.IsFavorite = !movie.IsFavorite;
+        }
     }
 
     private static string ToOriginalLanguage(string language)
     {
         return language == "en" ? "English" : "No language available";
     }
-    
+
     void OnChange(int index)
     {
     }

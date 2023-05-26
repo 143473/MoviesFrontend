@@ -4,7 +4,7 @@ namespace MoviesApp.Services.Interfaces
 {
     public interface IMovieService
     {
-        Task<MovieResponseDto> GetMovieAsync(int movie_id);
+        Task<MovieResponseDto> GetMovieAsync(string userId, int movie_id);
         Task AddFavoriteMovieAsync(FavoritesDto favoriteMovie);
         Task RemoveFavoriteMovieAsync(FavoritesDto favoriteMovie);
         Task<MovieListDto> GetMoviesByTitleAsync(string title, string? userId);
@@ -13,6 +13,7 @@ namespace MoviesApp.Services.Interfaces
         Task AddRatedMovieAsync(RatedMovieDto ratedMovie);
         Task AddRatingAsync(RatedMovieDto ratedMovie);
         Task<MovieListDto> GetFavoriteMovies(string? userId);
+        Task<MovieCreditsResponseDto> GetMovieCreditsAsync(int movieId);
         Task<MoviesExtendedResponseDto> GetFilteredMoviesAsync(DateTimeOffset fromDate, DateTimeOffset toDate,
             SortBy sortBy);
     }

@@ -2,7 +2,7 @@
 @using Radzen
 @using Radzen.Blazor
 
-<RadzenButton Click="@(() => Favorite(Movie))" Icon="@GetIcon(Movie)" IsBusy="@(isBusy == Movie.MovieId)" Style="border-radius: 50%; color: #507DBC; background-color: white;"></RadzenButton>
+<RadzenButton Click="@(OnAction)" Icon="@GetIcon(Movie, MovieSingle)" IsBusy="@(isBusy == Movie.MovieId)" Style="border-radius: 50%; color: #507DBC; background-color: white;"></RadzenButton>
 
 
 @code {
@@ -11,8 +11,14 @@
     public Func<MovieDto, Task> OnFavorite { get; set; } = null!;
     
     [Parameter]
-    public MovieDto Movie { get; set; } = new();
+    public Func<MovieResponseDto, Task> OnFavoriteSingle { get; set; } = null!;
     
+    [Parameter]
+    public MovieDto Movie { get; set; } = new();
+
+    [Parameter]
+    public MovieResponseDto MovieSingle { get; set; } = new();
+
     private int? isBusy;
     
     
@@ -28,8 +34,41 @@
             isBusy = null;
         }
     }
-    private static string GetIcon(MovieDto movie)
+    
+    private async Task FavoriteSingle(MovieResponseDto movie)
+    {
+        try
+        {
+            isBusy = movie.Id;
+            await OnFavoriteSingle(movie);
+        }
+        finally
+        {
+            isBusy = null;
+        }
+    }
+
+    private async Task OnAction()
+    {
+        if (Movie.MovieId != 0)
+        {
+            await Favorite(Movie);
+        }
+        else
+        {
+            await FavoriteSingle(MovieSingle);
+        }
+    }
+    private string GetIcon(MovieDto movie, MovieResponseDto movieSingle)
     { 
-        return movie.IsFavorite ? "favorite" : "favorite_border";
+       // return movie.IsFavorite ? "favorite" : "favorite_border";
+        if (Movie.MovieId != 0)
+        {
+           return movie.IsFavorite ? "favorite" : "favorite_border";
+        }
+        else
+        {
+            return movieSingle.IsFavorite.Value ? "favorite" : "favorite_border";
+        }
     }
 }

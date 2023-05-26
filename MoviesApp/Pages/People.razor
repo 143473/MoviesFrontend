@@ -1,4 +1,4 @@
-@page "/People"
+@page "/People/{Id:int}"
 @using MoviesApp.Services.Interfaces
 @using Radzen.Blazor
 @using Radzen
@@ -105,10 +105,11 @@ else
 }
 
 @code {
+    [Parameter]
+    public int Id { get; set; }
     private bool shouldRender = false;
     private PersonDetailsDTO _personDetailsDto;
     private PersonMovieCreditsDTO _personMovieCreditsDto;
-    private int personId = 11701;
     private List<PersonMovieDTO> _listOfMovies;
     private List<string> _jobs;
     int selectedIndex = 0;
@@ -125,8 +126,8 @@ else
         _listOfMovies = new List<PersonMovieDTO>();
 
 
-        _personDetailsDto = await PersonService.GetPerson(personId);
-        _personMovieCreditsDto = await PersonService.GetPersonMovieCredits(personId);
+        _personDetailsDto = await PersonService.GetPerson(Id);
+        _personMovieCreditsDto = await PersonService.GetPersonMovieCredits(Id);
 
         SetMovies();
     }

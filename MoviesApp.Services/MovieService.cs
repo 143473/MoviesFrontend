@@ -13,7 +13,7 @@ public class MovieService : IMovieService
         _moviesClient = moviesClient;
     }
 
-    public async Task<MovieResponseDto> GetMovieAsync(int movie_id)
+    public async Task<MovieResponseDto> GetMovieAsync(string userId, int movie_id)
     {
         return await _moviesClient.GetMovieAsync(movie_id);
     }

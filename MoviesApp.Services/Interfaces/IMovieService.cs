@@ -4,7 +4,7 @@ namespace MoviesApp.Services.Interfaces
 {
     public interface IMovieService
     {
-        Task<MovieResponseDto> GetMovieAsync(int movie_id);
+        Task<MovieResponseDto> GetMovieAsync(string userId, int movie_id);
         Task AddFavoriteMovieAsync(FavoritesDto favoriteMovie);
         Task RemoveFavoriteMovieAsync(FavoritesDto favoriteMovie);
         Task<MovieListDto> GetMoviesByTitleAsync(string title, string? userId);

@@ -4,7 +4,7 @@
 @inject IMovieService _movieService
 @using Radzen.Blazor
 @using Radzen
-@using System.Security.Claims
+@inject IUserService _userService
 @inject NotificationService _notificationService
 
 @if (shouldRender == false)
@@ -23,9 +23,12 @@ else
             <RadzenImage Path="@movie.Poster_path" Style="border-radius: 1%;"/>
 
             <RadzenStack Orientation="Orientation.Vertical" JustifyContent="JustifyContent.Start" Gap="0rem">
-                <RadzenText TextStyle="TextStyle.H3" Style="color: white">
-                    <strong>@movie.Title</strong> <span style="color: gray">(@ToYear(movie.Release_date))</span>
-                </RadzenText>
+                <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.SpaceBetween">
+                    <RadzenText TextStyle="TextStyle.H3" Style="color: white">
+                        <strong>@movie.Title</strong> <span style="color: gray">(@ToYear(movie.Release_date))</span>
+                    </RadzenText>
+                    <FavoriteButton OnFavoriteSingle="m => Favorite(movie)" MovieSingle="movie" ></FavoriteButton>
+                </RadzenStack>
                 <RadzenText TextStyle="TextStyle.H6" Style="color: white; font-style: italic" Class="rz-mb-4">"@movie.Tagline"</RadzenText>
                 <RadzenText TextStyle="TextStyle.H5" Style="color: white" Class="rz-pr-4"><strong>Overview</strong></RadzenText>
                 <RadzenText TextStyle="TextStyle.Body1" Style="color: white" Class="rz-mb-4">@movie.Overview</RadzenText>
@@ -65,9 +68,9 @@ else
                                 <p Style="color: white; margin: 0px" Class="rz-pr-4">
                                     <strong>Genres</strong>
                                 </p>
-                                 <p Style="color: white" Class="rz-pr-4">@genres</p>
+                                <p Style="color: white" Class="rz-pr-4">@genres</p>
                             </div>
-                            </div>
+                        </div>
                         <div class="row">
                             <div class="col-sm">
                                 <p Style="color: white; margin: 0px" Class="rz-pr-4">
@@ -95,10 +98,6 @@ else
             </RadzenStack>
         </RadzenStack>
     </RadzenStack>
-    <AuthorizeView>
-        @{ SetUserId(context); }
-        ;
-    </AuthorizeView>
 }
 
 @code {
@@ -118,10 +117,11 @@ else
     private string genres = "DO THE GENRESDTO";
 
     protected override async Task OnInitializedAsync()
-    {
+    {   
+        SetUserId();
         movie = new MovieResponseDto();
         rating = new RatingDto();
-        movie = await _movieService.GetMovieAsync(Id);
+        movie = await _movieService.GetMovieAsync(userId, Id);
         rating = await _movieService.GetMovieRatingAsync(Id);
         if (rating.MovieId.Value == movie.Id)
         {
@@ -183,9 +183,36 @@ else
         }
     }
 
-    private void SetUserId(AuthenticationState context)
+    private void SetUserId()
     {
-        userId = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        userId = _userService.GetUserId();
+    }
+    
+    private async Task Favorite(MovieResponseDto movie)
+    {
+        movie.IsFavorite = !movie.IsFavorite;
+        FavoritesDto favorite = new() { MovieId = movie.Id, UserId = userId };
+
+        try
+        {
+            if (movie.IsFavorite.Value)
+            {   
+
+                await _movieService.AddFavoriteMovieAsync(favorite);
+                _notificationService.Notify(new NotificationMessage {Severity = NotificationSeverity.Info, Summary = "Movie saved in favorites", Duration = 4000});
+                
+            }
+            else
+            {
+                await _movieService.RemoveFavoriteMovieAsync(favorite);
+                _notificationService.Notify(new NotificationMessage {Severity = NotificationSeverity.Info, Summary = "Movie removed from favorites", Duration = 4000});
+
+            }
+        }
+        catch (Exception)
+        {
+            movie.IsFavorite = !movie.IsFavorite;
+        }
     }
 
 }

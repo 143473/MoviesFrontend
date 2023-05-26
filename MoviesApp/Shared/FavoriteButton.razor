@@ -2,7 +2,7 @@
 @using Radzen
 @using Radzen.Blazor
 
-<RadzenButton Click="@(OnAction)" Icon="@GetIcon(Movie, MovieSingle)" IsBusy="@(isBusy == Movie.MovieId)" Style="border-radius: 50%; color: #507DBC; background-color: white;"></RadzenButton>
+<RadzenButton Click="@(OnAction)" Icon="@GetIcon(Movie, MovieSingle)" IsBusy="@(isBusy == Movie.MovieId)" Style="height:30px; width:30px; border-radius: 50%; color: #507DBC; background-color: var(--bs-black-rgb);"></RadzenButton>
 
 
 @code {
@@ -20,7 +20,6 @@
     public MovieResponseDto MovieSingle { get; set; } = new();
 
     private int? isBusy;
-    
     
     private async Task Favorite(MovieDto movie)
     {

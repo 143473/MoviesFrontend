@@ -28,7 +28,7 @@ else
                     <RadzenText TextStyle="TextStyle.H3" Style="color: white" Class="rz-mb-5">
                         <strong>@movie.Title</strong> <span style="color: gray">(@ToYear(movie.Release_date))</span>
                     </RadzenText>
-                    <FavoriteButton OnFavoriteSingle="m => Favorite(movie)" MovieSingle="movie" ></FavoriteButton>
+                    <FavoriteButton OnFavoriteSingle="m => Favorite(movie)" MovieSingle="movie"></FavoriteButton>
                 </RadzenStack>
                 <RadzenText TextStyle="TextStyle.H6" Style="color: white; font-style: italic" Class="rz-mb-7">"@movie.Tagline"</RadzenText>
                 <RadzenText TextStyle="TextStyle.H5" Style="color: white" Class="rz-pr-4">

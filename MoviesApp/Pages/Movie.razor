@@ -6,6 +6,7 @@
 @using Radzen
 @inject IUserService _userService
 @inject NotificationService _notificationService
+@inject NavigationManager _navigation
 
 @if (shouldRender == false)
 {
@@ -113,7 +114,7 @@ else
                         @foreach (var actor in cast)
                         {
                             <RadzenStack Orientation="Orientation.Vertical" JustifyContent="JustifyContent.Start" Gap="0.1em">
-                                <RadzenStack >
+                                <RadzenStack @onclick="() => GoToPerson(actor.Id)" Style="cursor: pointer;">
                                     <RadzenImage Path="@(actor.Profile_path ?? "Images/MissingImage.png")" Style="border-radius: 1%; height: 170px"/>
                                     <RadzenText TextStyle="TextStyle.Subtitle2" class="body-text"> @actor.Name</RadzenText>
                                     <RadzenText TextStyle="TextStyle.Caption" Style="color: #BBD1EA"> @actor.Character </RadzenText>
@@ -127,7 +128,7 @@ else
                         @foreach (var director in directors)
                         {
                             <RadzenStack Orientation="Orientation.Vertical" JustifyContent="JustifyContent.Start" Gap="0.1em">
-                                <RadzenStack >
+                                <RadzenStack @onclick="() => GoToPerson(director.Id)" Style="cursor: pointer;">
                                     <RadzenImage Path="@(director.Profile_path ?? "Images/MissingImage.png")" Style="border-radius: 1%; height: 170px"/>
                                     <RadzenText TextStyle="TextStyle.Subtitle2" class="body-text"> @director.Name</RadzenText>
                                     <RadzenText TextStyle="TextStyle.Caption" Style="color: #BBD1EA"> @director.Job </RadzenText>
@@ -276,6 +277,11 @@ else
 
     void OnChange(int index)
     {
+    }
+    
+    private void GoToPerson(int? id)
+    {
+        _navigation.NavigateTo($"/People/{id}");
     }
 
 }

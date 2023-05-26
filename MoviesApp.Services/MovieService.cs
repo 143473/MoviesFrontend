@@ -15,7 +15,7 @@ public class MovieService : IMovieService
 
     public async Task<MovieResponseDto> GetMovieAsync(string userId, int movie_id)
     {
-        return await _moviesClient.GetMovieAsync(movie_id);
+        return await _moviesClient.GetMovieAsync(movie_id, userId);
     }
 
     public Task AddFavoriteMovieAsync(FavoritesDto favoriteMovie)

@@ -137,6 +137,20 @@ else
                         }
                     </RadzenStack>
                 </RadzenTabsItem>
+                <RadzenTabsItem Text="Crew" Style="background-color: #04080F; font-weight: bold;">
+                    <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Start" Style="overflow: scroll">
+                        @foreach (var crewMember in crew)
+                        {
+                            <RadzenStack Orientation="Orientation.Vertical" JustifyContent="JustifyContent.Start" Gap="0.1em">
+                                <RadzenStack @onclick="() => GoToPerson(crewMember.Id)" Style="cursor: pointer;">
+                                    <RadzenImage Path="@(crewMember.Profile_path ?? "Images/MissingImage.png")" Style="border-radius: 1%; height: 170px"/>
+                                    <RadzenText TextStyle="TextStyle.Subtitle2" class="body-text"> @crewMember.Name</RadzenText>
+                                    <RadzenText TextStyle="TextStyle.Caption" Style="color: #BBD1EA"> @crewMember.Job </RadzenText>
+                                </RadzenStack>
+                            </RadzenStack>
+                        }
+                    </RadzenStack>
+                </RadzenTabsItem>
             }
         </Tabs>
     </RadzenTabs>
@@ -161,6 +175,7 @@ else
     MovieCreditsResponseDto movieCredits;
     List<MovieCastDto> cast = new List<MovieCastDto>();
     List<MovieCrewDto> directors = new List<MovieCrewDto>();
+    List<MovieCrewDto> crew = new List<MovieCrewDto>();
 
     protected override async Task OnInitializedAsync()
     {   
@@ -188,6 +203,7 @@ else
 
         cast = movieCredits.Cast.OrderByDescending(c => c.Popularity).ToList();
         directors =  movieCredits.Crew.Where(c => c.Job == "Director").ToList();
+        crew = movieCredits.Crew.Where(c => !c.Job.Equals("Director")).ToList();
     }
 
     private async void CheckRatingInDb()

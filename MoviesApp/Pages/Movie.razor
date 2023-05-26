@@ -18,22 +18,26 @@
 else
 {
     <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center" Wrap="FlexWrap.Wrap">
-        <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Start" Gap="1rem" Class="rz-p-4">
+        <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Start" Gap="3rem" Class="rz-p-4">
 
             <RadzenImage Path="@movie.Poster_path" Style="border-radius: 1%;"/>
 
             <RadzenStack Orientation="Orientation.Vertical" JustifyContent="JustifyContent.Start" Gap="0rem">
                 <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.SpaceBetween">
-                    <RadzenText TextStyle="TextStyle.H3" Style="color: white">
+                    <RadzenText TextStyle="TextStyle.H3" Style="color: white" Class="rz-mb-5">
                         <strong>@movie.Title</strong> <span style="color: gray">(@ToYear(movie.Release_date))</span>
                     </RadzenText>
                     <FavoriteButton OnFavoriteSingle="m => Favorite(movie)" MovieSingle="movie" ></FavoriteButton>
                 </RadzenStack>
-                <RadzenText TextStyle="TextStyle.H6" Style="color: white; font-style: italic" Class="rz-mb-4">"@movie.Tagline"</RadzenText>
-                <RadzenText TextStyle="TextStyle.H5" Style="color: white" Class="rz-pr-4"><strong>Overview</strong></RadzenText>
-                <RadzenText TextStyle="TextStyle.Body1" Style="color: white" Class="rz-mb-4">@movie.Overview</RadzenText>
+                <RadzenText TextStyle="TextStyle.H6" Style="color: white; font-style: italic" Class="rz-mb-7">"@movie.Tagline"</RadzenText>
+                <RadzenText TextStyle="TextStyle.H5" Style="color: white" Class="rz-pr-4">
+                    <strong>Overview</strong>
+                </RadzenText>
+                <RadzenText TextStyle="TextStyle.Body1" Style="color: white" Class="rz-mb-7">@movie.Overview</RadzenText>
                 <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0rem">
-                    <RadzenText TextStyle="TextStyle.H5" Style="color: white" Class="rz-pr-4"><strong>Rating</strong></RadzenText>
+                    <RadzenText TextStyle="TextStyle.H5" Style="color: white" Class="rz-pr-4">
+                        <strong>Rating</strong>
+                    </RadzenText>
                 </RadzenStack>
                 <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0rem">
                     <RadzenText TextStyle="TextStyle.H4" Style="color: white" Class="rz-pr-4">@movieRating.ToString("#.##")</RadzenText>
@@ -43,12 +47,14 @@ else
                     <RadzenButton IsBusy="@loading" Shade="Shade.Lighter" Click=@(() => RateMovie(movie.Id)) Text="Rate" ButtonStyle="ButtonStyle.Light"/>
                 </RadzenStack>
                 <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0rem">
-                    <RadzenText TextStyle="TextStyle.Body1" Style="color: white" Class="rz-pr-2 rz-mb-4">Votes</RadzenText>
-                    <RadzenText TextStyle="TextStyle.Body1" Style="color: white" Class="rz-mb-4">@numberOfVotes</RadzenText>
+                    <RadzenText TextStyle="TextStyle.Body1" Style="color: white" Class="rz-pr-2 rz-mb-7">Votes</RadzenText>
+                    <RadzenText TextStyle="TextStyle.Body1" Style="color: white" Class="rz-mb-7">@numberOfVotes</RadzenText>
                 </RadzenStack>
-                <RadzenText TextStyle="TextStyle.H5" Style="color: white" Class="rz-pr-4 rz-mb-4"><strong>Details</strong></RadzenText>
+                <RadzenText TextStyle="TextStyle.H5" Style="color: white" Class="rz-pr-4 rz-mb-5">
+                    <strong>Details</strong>
+                </RadzenText>
                 <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0rem">
-                    <div class="container">
+                    <div class="container" style="padding-left: 0">
                         <div class="row">
                             <div class="col-sm">
                                 <p Style="color: white; margin: 0px" Class="rz-pr-4">
@@ -60,7 +66,29 @@ else
                                 <p Style="color: white; margin: 0px" Class="rz-pr-4">
                                     <strong>Original Language</strong>
                                 </p>
-                                <p Style="color: white" Class="rz-pr-4">@movie.Original_language</p>
+                                <p Style="color: white" Class="rz-pr-4">@ToOriginalLanguage(movie.Original_language)</p>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm">
+                                <p Style="color: white; margin: 0px" Class="rz-pr-4">
+                                    <strong>Budget</strong>
+                                </p>
+                                <p Style="color: white" Class="rz-pr-4">$@movie.Budget</p>
+                            </div>
+                            <div class="col-sm">
+                                <p Style="color: white; margin: 0px" Class="rz-pr-4">
+                                    <strong>Revenue</strong>
+                                </p>
+                                <p Style="color: white" Class="rz-pr-4">$@movie.Revenue</p>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm">
+                                <p Style="color: white; margin: 0px" Class="rz-pr-4">
+                                    <strong>Runtime</strong>
+                                </p>
+                                <p Style="color: white" Class="rz-pr-4">@movie.Runtime minutes</p>
                             </div>
                         </div>
                         <div class="row">
@@ -71,33 +99,46 @@ else
                                 <p Style="color: white" Class="rz-pr-4">@genres</p>
                             </div>
                         </div>
-                        <div class="row">
-                            <div class="col-sm">
-                                <p Style="color: white; margin: 0px" Class="rz-pr-4">
-                                    <strong>Budget</strong>
-                                </p>
-                                <p Style="color: white" Class="rz-pr-4">@movie.Budget</p>
-                            </div>
-                            <div class="col-sm">
-                                <p Style="color: white; margin: 0px" Class="rz-pr-4">
-                                    <strong>Revenue</strong>
-                                </p>
-                                <p Style="color: white" Class="rz-pr-4">@movie.Revenue</p>
-                            </div>
-
-                        </div>
                     </div>
                 </RadzenStack>
-
-                <RadzenText TextStyle="TextStyle.H5" Style="color: white" Class="rz-pr-4">Budget: @movie.Budget</RadzenText>
-
-                <RadzenText TextStyle="TextStyle.H5" Style="color: white" Class="rz-pr-4">Duration:@movie.Runtime</RadzenText>
-                <RadzenText TextStyle="TextStyle.H5" Style="color: white" Class="rz-pr-4">Revenue:@movie.Revenue</RadzenText>
-
-
             </RadzenStack>
         </RadzenStack>
     </RadzenStack>
+    <RadzenTabs @bind-SelectedIndex=@selectedIndex Change=@OnChange RenderMode="TabRenderMode.Server">
+        <Tabs>
+            @if (movieCredits.Cast != null || movieCredits.Cast.Any() || movieCredits.Crew != null || movieCredits.Crew.Any())
+            {
+                <RadzenTabsItem Text="Actors" Style="background-color: #04080F; font-weight: bold;">
+                    <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Start" Style="overflow: scroll">
+                        @foreach (var actor in cast)
+                        {
+                            <RadzenStack Orientation="Orientation.Vertical" JustifyContent="JustifyContent.Start" Gap="0.1em">
+                                <RadzenStack >
+                                    <RadzenImage Path="@(actor.Profile_path ?? "Images/MissingImage.png")" Style="border-radius: 1%; height: 170px"/>
+                                    <RadzenText TextStyle="TextStyle.Subtitle2" class="body-text"> @actor.Name</RadzenText>
+                                    <RadzenText TextStyle="TextStyle.Caption" Style="color: #BBD1EA"> @actor.Character </RadzenText>
+                                </RadzenStack>
+                            </RadzenStack>
+                        }
+                    </RadzenStack>
+                </RadzenTabsItem>
+                <RadzenTabsItem Text="Directors" Style="background-color: #04080F; font-weight: bold;">
+                    <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Start" Style="overflow: scroll">
+                        @foreach (var director in directors)
+                        {
+                            <RadzenStack Orientation="Orientation.Vertical" JustifyContent="JustifyContent.Start" Gap="0.1em">
+                                <RadzenStack >
+                                    <RadzenImage Path="@(director.Profile_path ?? "Images/MissingImage.png")" Style="border-radius: 1%; height: 170px"/>
+                                    <RadzenText TextStyle="TextStyle.Subtitle2" class="body-text"> @director.Name</RadzenText>
+                                    <RadzenText TextStyle="TextStyle.Caption" Style="color: #BBD1EA"> @director.Job </RadzenText>
+                                </RadzenStack>
+                            </RadzenStack>
+                        }
+                    </RadzenStack>
+                </RadzenTabsItem>
+            }
+        </Tabs>
+    </RadzenTabs>
 }
 
 @code {
@@ -114,7 +155,11 @@ else
     private double movieRating;
     private Boolean loading = false;
     private int numberOfVotes;
-    private string genres = "DO THE GENRESDTO";
+    private string genres = "No genres available";
+    int selectedIndex = 0;
+    MovieCreditsResponseDto movieCredits;
+    List<MovieCastDto> cast = new List<MovieCastDto>();
+    List<MovieCrewDto> directors = new List<MovieCrewDto>();
 
     protected override async Task OnInitializedAsync()
     {   
@@ -133,6 +178,15 @@ else
             movieRating = movie.Vote_average.Value;
             numberOfVotes = movie.Vote_count.Value;
         }
+        if (movie.Genres != null)
+        {
+            genres = String.Join(", ", movie.Genres.Select(g => g.Name));
+        }
+
+        movieCredits = await _movieService.GetMovieCreditsAsync(Id);
+
+        cast = movieCredits.Cast.OrderByDescending(c => c.Popularity).ToList();
+        directors =  movieCredits.Crew.Where(c => c.Job == "Director").ToList();
     }
 
     private async void CheckRatingInDb()
@@ -213,6 +267,15 @@ else
         {
             movie.IsFavorite = !movie.IsFavorite;
         }
+    }
+
+    private static string ToOriginalLanguage(string language)
+    {
+        return language == "en" ? "English" : "No language available";
+    }
+
+    void OnChange(int index)
+    {
     }
 
 }

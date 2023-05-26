@@ -43,6 +43,11 @@ public class MovieService : IMovieService
         return _moviesClient.GetFavoriteMoviesAsync(userId);
     }
 
+    public Task<MovieCreditsResponseDto> GetMovieCreditsAsync(int movieId)
+    {
+        return _moviesClient.GetMovieCreditsAsync(movieId);
+    }
+
     public async Task<RatingDto> GetMovieRatingAsync(int movieId)
     {
         return await _moviesClient.GetMovieRatingAsync(movieId);
@@ -56,5 +61,10 @@ public class MovieService : IMovieService
     public async Task AddRatingAsync(RatedMovieDto ratedMovie)
     {
         await _moviesClient.AddRatingAsync(ratedMovie);
+    }
+
+    public async Task<MoviesExtendedResponseDto> GetFilteredMoviesAsync(DateTimeOffset fromDate, DateTimeOffset toDate, SortBy sortBy)
+    {
+        return await _moviesClient.GetFilteredMoviesAsync(fromDate, toDate, sortBy);
     }
 }

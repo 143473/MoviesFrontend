@@ -22,7 +22,22 @@ h1, h2, h3{
 }
 
 .image-background{
-    background-image: linear-gradient(to right, rgba(31.5, 10.5, 10.5, 1) calc((50vw - 170px) - 340px), rgba(31.5, 10.5, 10.5, 0.84) 50%, rgba(31.5, 10.5, 10.5, 0.84) 100%);
+    width: 100%; 
+    max-height: inherit; 
+    opacity: 20%; 
+    position: absolute; 
+    object-fit: cover; 
+    object-position: 20%;
+}
+.rz-datalist-data {
+    position: relative;
+    overflow: hidden;
+}
+
+.rz-datalist-data > li:last-child {
+    background-image: linear-gradient(to left, rgba(31.5, 31.5, 31.5, 1) calc((50vw - 170px) - 340px), rgba(31.5, 31.5, 31.5, 0.84) 50%, rgba(31.5, 31.5, 31.5, 0.84) 100%);
+    padding: 0;
+    border: black;
 }
 
 .rz-tabview-nav .rz-tabview-selected a{
@@ -101,9 +116,12 @@ a, .btn-link {
     }
 
 /*:root {*/
-/*    --rz-white: #ffffff;*/
+/*    --rz-white: black;*/
+/*}*/
+/*:root {*/
+/*    --rz-white: black;*/
 /*    --rz-black: #000000;*/
-/*    --rz-base-50: #fafafa;*/
+/*    --rz-base-50: black;*/
 /*    --rz-base-100: #f5f5f5;*/
 /*    --rz-base-200: #eeeeee;*/
 /*    --rz-base-300: #e0e0e0;*/

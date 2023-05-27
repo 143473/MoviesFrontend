@@ -4,39 +4,39 @@
 @inject NavigationManager _navigation
 
 <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center" Wrap="FlexWrap.Wrap">
-@foreach (var movie in Movies)
-{
-    <RadzenCard Class="rz-my-2 rz-mx-2" Style="width: 420px">
-        <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Start" Gap="1rem" Class="rz-p-4">
-        @if (string.IsNullOrWhiteSpace(movie.PosterPath))
-        {
-            <RadzenImage Path="Images/MissingImage.png" Style="width: 100px; height: 100px; border-radius: 1%;"/>
-        }
-        else
-        {
-            <RadzenImage Path="@movie.PosterPath" Style="width: 100px; height: 100px; border-radius: 1%;"/>
-        }
-        <RadzenStack Orientation="Orientation.Vertical" JustifyContent="JustifyContent.Start" Gap="0rem">
-
-            <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.SpaceBetween">
-                <RadzenText TextStyle="TextStyle.Body1"><strong>@movie.Title</strong></RadzenText>
-                @if (movie.MovieId != 0)
+    @foreach (var movie in Movies)
+    {
+        <RadzenCard Class="rz-my-2 rz-mx-2" Style="width: 420px">
+            <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Start" Gap="1rem" Class="rz-p-4">
+                @if (string.IsNullOrWhiteSpace(movie.PosterPath))
                 {
-                    <AuthorizeView>
-                        <FavoriteButton OnFavorite="@OnFavorite" Movie="movie"></FavoriteButton>
-                    </AuthorizeView>
+                    <RadzenImage Path="Images/MissingImage.png" Style="width: 100px; height: 100px; border-radius: 1%;"/>
                 }
+                else
+                {
+                    <RadzenImage Path="@movie.PosterPath" Style="width: 100px; height: 100px; border-radius: 1%;"/>
+                }
+                <RadzenStack Orientation="Orientation.Vertical" JustifyContent="JustifyContent.Start" Gap="0rem">
+
+                    <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.SpaceBetween">
+                        <RadzenText TextStyle="TextStyle.Body1"><strong>@movie.Title</strong></RadzenText>
+                        @if (movie.MovieId != 0)
+                        {
+                            <AuthorizeView>
+                                <FavoriteButton OnFavorite="@OnFavorite" Movie="movie"></FavoriteButton>
+                            </AuthorizeView>
+                        }
+                    </RadzenStack>
+                    @if (movie.MovieId != 0)
+                    {
+                        <RadzenText TextStyle="TextStyle.Body2">@ToYear(movie.ReleaseDate)</RadzenText>
+                        <RadzenLabel Style="height: 60px; width: 250px; overflow:clip">@movie.Description</RadzenLabel>
+                        <label class="details-link" @onclick="() => GoToMovie(movie.MovieId)">See more</label>
+                    }
+                </RadzenStack>
             </RadzenStack>
-            @if (movie.MovieId != 0)
-            {
-                <RadzenText TextStyle="TextStyle.Body2">@ToYear(movie.ReleaseDate)</RadzenText>
-                <RadzenLabel Style="height: 60px; width: 250px; overflow:clip">@movie.Description</RadzenLabel>
-                <label class="details-link" @onclick="() => GoToMovie(movie.MovieId)">See more</label>
-            }
-            </RadzenStack>
-        </RadzenStack>
-    </RadzenCard>
-}
+        </RadzenCard>
+    }
 </RadzenStack>
 
 @code {

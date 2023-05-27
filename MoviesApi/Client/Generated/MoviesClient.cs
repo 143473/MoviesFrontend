@@ -304,10 +304,11 @@ namespace movies_api
         /// <remarks>
         /// Get a movie's credits by its Id
         /// </remarks>
+        /// <param name="api_key">api key</param>
         /// <param name="movieId">movie id</param>
         /// <returns>Returns credits for a movie</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        System.Threading.Tasks.Task<MovieCreditsResponseDto> GetMovieCreditsAsync(int movieId, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken));
+        System.Threading.Tasks.Task<MovieCreditsResponseDto> GetMovieCreditsAsync(string api_key, int movieId, string language = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken));
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <remarks>
@@ -1149,17 +1150,27 @@ namespace movies_api
         /// <remarks>
         /// Get a movie's credits by its Id
         /// </remarks>
+        /// <param name="api_key">api key</param>
         /// <param name="movieId">movie id</param>
         /// <returns>Returns credits for a movie</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<MovieCreditsResponseDto> GetMovieCreditsAsync(int movieId, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
+        public virtual async System.Threading.Tasks.Task<MovieCreditsResponseDto> GetMovieCreditsAsync(string api_key, int movieId, string language = null, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
         {
             if (movieId == null)
                 throw new System.ArgumentNullException("movieId");
 
+            if (api_key == null)
+                throw new System.ArgumentNullException("api_key");
+
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/movie/{movieId}/credits");
+            urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/movie/{movieId}/credits?");
             urlBuilder_.Replace("{movieId}", System.Uri.EscapeDataString(ConvertToString(movieId, System.Globalization.CultureInfo.InvariantCulture)));
+            urlBuilder_.Append(System.Uri.EscapeDataString("api_key") + "=").Append(System.Uri.EscapeDataString(ConvertToString(api_key, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
+            if (language != null)
+            {
+                urlBuilder_.Append(System.Uri.EscapeDataString("language") + "=").Append(System.Uri.EscapeDataString(ConvertToString(language, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
+            }
+            urlBuilder_.Length--;
 
             var client_ = new System.Net.Http.HttpClient();
             var disposeClient_ = true;
@@ -2253,6 +2264,9 @@ namespace movies_api
 
         [Newtonsoft.Json.JsonProperty("IsFavorite", Required = Newtonsoft.Json.Required.Always)]
         public bool IsFavorite { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("BackdropPath", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string BackdropPath { get; set; }
 
     }
 

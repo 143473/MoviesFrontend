@@ -45,7 +45,7 @@ public class MovieService : IMovieService
 
     public Task<MovieCreditsResponseDto> GetMovieCreditsAsync(int movieId)
     {
-        return _moviesClient.GetMovieCreditsAsync(movieId);
+        return _moviesClient.GetMovieCreditsAsync(null, movieId);
     }
 
     public async Task<RatingDto> GetMovieRatingAsync(int movieId)

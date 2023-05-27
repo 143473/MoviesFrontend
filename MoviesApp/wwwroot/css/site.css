@@ -40,6 +40,14 @@ h1, h2, h3{
     border: black;
 }
 
+.dot {
+    height: 10px;
+    width: 10px;
+    background-color: #bbb;
+    border-radius: 50%;
+    display: inline-block;
+}
+
 .rz-tabview-nav .rz-tabview-selected a{
     color: #DAE3E5;
 }

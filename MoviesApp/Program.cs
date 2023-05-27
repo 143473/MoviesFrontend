@@ -31,6 +31,7 @@ builder.Services
 builder.Services.AddScoped<IMovieService, MovieService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<NotificationService>();
+builder.Services.AddScoped<TooltipService>();
 builder.Services.AddScoped<IPersonService, PersonService>();
 
 

@@ -1,0 +1,123 @@
+@page "/SearchForPeople"
+@using movies_api
+@using MoviesApp.Services.Interfaces
+@using Radzen
+@using Radzen.Blazor
+@inject IPersonService PersonService
+@inject NavigationManager NavigationManager
+@inject TooltipService TooltipService
+
+<MovieHeader OnSearch="OnSearch"/>
+
+@if (shouldRender == false)
+{
+    <div class="d-flex justify-content-center">
+        <div class="spinner-border" role="status"></div>
+    </div>
+}
+else
+{
+    if (_personList != null || _personList.Any())
+    {
+        <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center" Wrap="FlexWrap.Wrap">
+            @foreach (var result in _personList)
+            {
+                <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Start" AlignItems="AlignItems.Center" Gap="1em" Style="width: 500px;">
+                    <RadzenImage Path="@(result.Profile_path ?? (result.Gender is "male" or "other" ? "Images/MissingMaleActor.png" : "Images/MissingFemaleActor.png"))" @onclick=@(() => GoToPerson(result.Id.Value)) Style="border-radius: 5%; height: 150px; width: 130px;  cursor: pointer; object-fit: cover; object-position: -10% -10%;"/>
+
+                    <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Start" Gap="0">
+                        <RadzenText TextStyle="TextStyle.DisplayH5" class="body-text" @onclick=@(() => GoToPerson(result.Id.Value)) Style="cursor: pointer"> @result.Name</RadzenText>
+
+                        <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center" AlignItems="AlignItems.Center" Gap="5em">
+                            <RadzenText TextStyle="TextStyle.H6" class="body-text"> @result.Known_for_department</RadzenText>
+                        </RadzenStack>
+                        <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Left" AlignItems="AlignItems.Start" Gap="1em">
+                            @foreach (var movie in result.Known_for)
+                            {
+                                <RadzenText TextStyle="TextStyle.Body2" Style="color: #BBD1EA; cursor: pointer" @onclick=@(() => GoToMovie(movie.MovieId))
+                                            MouseEnter="@(args => ShowTooltipWithHtml(args, movie, new TooltipOptions() { Style = "background: white; padding: 0.1em", Duration = null }))"
+                                            MouseLeave="@(args => TooltipService.Close())">
+                                    @movie.Title
+                                </RadzenText>
+                            }
+                        </RadzenStack>
+                    </RadzenStack>
+                </RadzenStack>
+            }
+        </RadzenStack>
+    }
+    else
+    {
+        <RadzenStack JustifyContent="JustifyContent.Center">
+            <RadzenText>@message</RadzenText>
+        </RadzenStack>
+    }
+}
+
+@code {
+    private List<PersonDTO> _personList;
+    private bool shouldRender;
+    private string message;
+
+    protected override Task OnParametersSetAsync()
+    {
+        shouldRender = false;
+        _personList = new List<PersonDTO>();
+
+        return base.OnParametersSetAsync();
+    }
+
+    protected override Task OnAfterRenderAsync(bool firstRender)
+    {
+        shouldRender = true;
+        return base.OnAfterRenderAsync(firstRender);
+    }
+
+    void ShowTooltipWithHtml(ElementReference elementReference, MovieDto movie, TooltipOptions options = null)
+    {
+        TooltipService.Open(elementReference, ds =>
+            @<RadzenCard Style="padding: 0; margin: 0; background-color: black; max-width: 180px; width: 99%">
+                <RadzenStack Orientation="Orientation.Vertical" Gap="0.1em" Style="padding: 0.5em;" JustifyContent="JustifyContent.Left">
+                    <RadzenImage Path="@(movie.PosterPath ?? "Images/MissingImage.png")" Style="border-radius: 1%;"/>
+                    
+                    <RadzenText TextStyle="TextStyle.Body2" class="body-text"> @movie.Title</RadzenText>
+                    <RadzenText TextStyle="TextStyle.Caption" Style="color: #BBD1EA"> @movie.ReleaseDate </RadzenText>
+                </RadzenStack>
+            </RadzenCard>, options);
+    }
+
+    private async Task OnSearch(string keyword)
+    {
+        if (string.IsNullOrWhiteSpace(keyword))
+        {
+            shouldRender = false;
+            _personList.Clear();
+            return;
+        }
+        try
+        {
+            var response = await PersonService.GetPersonsByName(keyword);
+            _personList = response.Persons.ToList();
+            if (response.Persons.Count == 0)
+            {
+                message = "No results found";
+            }
+        }
+        catch (Exception)
+        {
+            message = "No results found";
+        }
+
+    }
+
+    private void GoToPerson(int id)
+    {
+        NavigationManager.NavigateTo($"/People/{id}");
+    }
+
+    private void GoToMovie(int? id)
+    {
+        NavigationManager.NavigateTo($"/Movie/{id}");
+    }
+
+}

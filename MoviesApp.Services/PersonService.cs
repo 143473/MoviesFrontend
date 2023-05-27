@@ -21,4 +21,9 @@ public class PersonService : IPersonService
     {
         return await _personsClient.GetPersonMoviesAsync(personId);
     }
+
+    public async Task<PersonsResponseDTO> GetPersonsByName(string keyword)
+    {
+        return await _personsClient.GetPersonsByNameAsync(keyword);
+    }
 }

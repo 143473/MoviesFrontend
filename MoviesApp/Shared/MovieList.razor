@@ -5,7 +5,7 @@
 @using System.Security.Policy
 @inject NavigationManager _navigation
 
-<RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center" Wrap="FlexWrap.Wrap">
+<RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center" Wrap="FlexWrap.Wrap" Style="height: 100%">
     @foreach (var movie in Movies)
     {
         <div style="background-image: url(@SetPath(movie));">
@@ -15,7 +15,7 @@
 
                 @if (string.IsNullOrWhiteSpace(movie.PosterPath))
                 {
-                    <RadzenImage Path="Images/MissingImage.png" Style="width: 100px; height: 150px; border-radius: 1%;"/>
+                    <RadzenImage Path="Images/MissingImage.png" Style="width: 100px; height: 100px; border-radius: 1%;"/>
                 }
                 else
                 {

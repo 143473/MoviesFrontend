@@ -1,21 +1,41 @@
 ﻿@page "/favorites"
 @using MoviesApp.Services.Interfaces
 @using movies_api
+@using Radzen.Blazor
+@using System.Drawing
+@using System.Drawing.Printing
+@using Radzen
 @inject IMovieService _movieService
 @inject IUserService _userService
 
 <MovieHeader Title="Favorites" Header="Your favorite movies"></MovieHeader>
+
 <AuthorizeView>
-@if (shouldRender == false)
-{
-    <div class="d-flex justify-content-center">
-        <div class="spinner-border" role="status"></div>
-    </div>
-}
-else
-{
-    <MovieList Movies="@movies.Results" OnFavorite="movie => RemoveFavorite(movie)"></MovieList>
-}
+    <NotAuthorized>
+       <RadzenStack AlignItems="AlignItems.Center" Style="margin-top: 100px">
+       <RadzenText TextStyle="TextStyle.H4" Style="color: white">Log in to see this content</RadzenText>
+       </RadzenStack>
+       </NotAuthorized>
+    <Authorized>
+    @if (shouldRender == false)
+    {
+        <div class="d-flex justify-content-center">
+            <div class="spinner-border" role="status"></div>
+        </div>
+    }
+    else
+    {
+        if (userId != null && movies.Results.Count == 0)
+        {
+            <RadzenStack AlignItems="AlignItems.Center" Style="margin-top: 100px">
+                <RadzenText TextStyle="TextStyle.H4" Style="color: white">No favorites in your list</RadzenText>
+            </RadzenStack>
+        }
+        <div style="height: 900px; overflow-y: scroll">
+            <MovieList Movies="@movies.Results" OnFavorite="movie => RemoveFavorite(movie)"></MovieList>
+        </div>
+    }
+    </Authorized>
 </AuthorizeView>
 @code
 {   

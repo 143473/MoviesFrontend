@@ -137,16 +137,51 @@ else
                         }
                     </RadzenStack>
                 </RadzenTabsItem>
+                <RadzenTabsItem Text="Crew" Style="background-color: #04080F; font-weight: bold;">
+                    <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Start" Style="overflow: scroll">
+                        @foreach (var crewMember in crew)
+                        {
+                            <RadzenStack Orientation="Orientation.Vertical" JustifyContent="JustifyContent.Start" Gap="0.1em">
+                                <RadzenStack @onclick="() => GoToPerson(crewMember.Id)" Style="cursor: pointer;">
+                                    <RadzenImage Path="@(crewMember.Profile_path ?? "Images/MissingImage.png")" Style="border-radius: 1%; height: 170px"/>
+                                    <RadzenText TextStyle="TextStyle.Subtitle2" class="body-text"> @crewMember.Name</RadzenText>
+                                    <RadzenText TextStyle="TextStyle.Caption" Style="color: #BBD1EA"> @crewMember.Job </RadzenText>
+                                </RadzenStack>
+                            </RadzenStack>
+                        }
+                    </RadzenStack>
+                </RadzenTabsItem>
             }
         </Tabs>
     </RadzenTabs>
+    <RadzenTemplateForm TItem="CommentDto" Data=@_comment Submit=@OnSubmit InvalidSubmit=@OnInvalidSubmit>
+        <RadzenFormField Text="Comment" Variant="Variant.Text" Style="width: 100%; outline-width: 0;">
+            <RadzenTextBox @bind-Value="@commentText" Style="width: 100%;" />
+        </RadzenFormField>
+        <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End" Gap="0rem">
+        <RadzenButton ButtonType="ButtonType.Submit" Text="Comment" ButtonStyle="ButtonStyle.Light"></RadzenButton>
+        </RadzenStack>
+    </RadzenTemplateForm>
+    <RadzenText TextStyle="TextStyle.H5" Style="color: white" Class="rz-mt-4">
+        <strong>Comments</strong>
+    </RadzenText>
+ 
+    @foreach (var comment in _comments)
+    {
+        <RadzenCard Class="rz-py-8 rz-pl-0" Style="max-width: 100%; background-color: #04080F">
+            <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Start" Gap="1rem">
+                <RadzenText TextStyle="TextStyle.Body1" Style="color: white">@comment.Username:</RadzenText>
+                <RadzenText TextStyle="TextStyle.Body1" Style="color: white">@comment.Text</RadzenText>
+            </RadzenStack>
+        </RadzenCard>
+    }
 }
 
 @code {
 
     [Parameter]
     public int Id { get; set; }
-
+    string commentText = "";
     int value;
     private MovieResponseDto movie;
     private RatingDto rating;
@@ -161,6 +196,11 @@ else
     MovieCreditsResponseDto movieCredits;
     List<MovieCastDto> cast = new List<MovieCastDto>();
     List<MovieCrewDto> directors = new List<MovieCrewDto>();
+    List<MovieCrewDto> crew = new List<MovieCrewDto>();
+    CommentDto _comment = new CommentDto();
+    List<CommentDto> _comments = new List<CommentDto>();
+    CommentsDto _commentsDto = new CommentsDto();
+    private string username;
 
     protected override async Task OnInitializedAsync()
     {   
@@ -188,6 +228,10 @@ else
 
         cast = movieCredits.Cast.OrderByDescending(c => c.Popularity).ToList();
         directors =  movieCredits.Crew.Where(c => c.Job == "Director").ToList();
+        crew = movieCredits.Crew.Where(c => !c.Job.Equals("Director")).ToList();
+        _commentsDto = await _movieService.GetCommentsAsync(Id);
+        _comments = _commentsDto.Comments.ToList();
+        GetUserName();
     }
 
     private async void CheckRatingInDb()
@@ -212,11 +256,11 @@ else
     {
         if (value == 0)
         {
-            _notificationService.Notify(new NotificationMessage {Severity = NotificationSeverity.Warning, Summary = "No rating value selected", Duration = 4000});
+            _notificationService.Notify(new NotificationMessage {Severity = NotificationSeverity.Info, Summary = "No rating value selected", Duration = 4000});
         }
         else if (userId == null)
         {
-            _notificationService.Notify(new NotificationMessage {Severity = NotificationSeverity.Warning, Summary = "Log in to rate", Duration = 4000});
+            _notificationService.Notify(new NotificationMessage {Severity = NotificationSeverity.Info, Summary = "Log in to rate", Duration = 4000});
         }
         else
         {
@@ -282,6 +326,48 @@ else
     private void GoToPerson(int? id)
     {
         _navigation.NavigateTo($"/People/{id}");
+    }
+    
+    private class Comment
+    {
+        public int Id { get; set; }
+        public string UserId { get; set; }
+        public string Text { get; set; }
+        public int MovieId { get; set; }
+        public string Username { get; set; }
+    }
+
+    private async Task OnSubmit(CommentDto comment)
+    {
+        if (userId != null)
+        {
+            comment = new CommentDto()
+            {
+                MovieId = Id,
+                Text = commentText,
+                UserId = userId,
+                Username = username
+            };
+            await _movieService.AddCommentAsync(comment);
+            // Should probably just return the new comment and add to the list to avoid all the calls the the api
+            _commentsDto = await _movieService.GetCommentsAsync(Id);
+            _comments = _commentsDto.Comments.ToList();
+            commentText = "";
+        }
+        else
+        {
+            _notificationService.Notify(new NotificationMessage {Severity = NotificationSeverity.Info, Summary = "Log in to leave comment", Duration = 4000});
+        }
+    }
+
+    private void OnInvalidSubmit(FormInvalidSubmitEventArgs obj)
+    {
+        _notificationService.Notify(new NotificationMessage {Severity = NotificationSeverity.Error, Summary = "Comment could not be saved", Duration = 4000});
+    }
+    
+    private void GetUserName()
+    {
+        username = _userService.GetUserName();
     }
 
 }

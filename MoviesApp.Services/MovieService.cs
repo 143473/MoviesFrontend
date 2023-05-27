@@ -67,4 +67,14 @@ public class MovieService : IMovieService
     {
         return await _moviesClient.GetFilteredMoviesAsync(fromDate, toDate, sortBy);
     }
+    
+    public async Task AddCommentAsync(CommentDto comment)
+    {
+        await _moviesClient.AddCommentAsync(comment);
+    }
+
+    public async Task<CommentsDto> GetCommentsAsync(int movieId)
+    {
+        return await _moviesClient.GetCommentsAsync(movieId);
+    }
 }

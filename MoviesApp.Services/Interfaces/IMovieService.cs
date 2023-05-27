@@ -16,5 +16,10 @@ namespace MoviesApp.Services.Interfaces
         Task<MovieCreditsResponseDto> GetMovieCreditsAsync(int movieId);
         Task<MoviesExtendedResponseDto> GetFilteredMoviesAsync(DateTimeOffset fromDate, DateTimeOffset toDate,
             SortBy sortBy);
+
+        Task AddCommentAsync(CommentDto comment);
+
+        Task<CommentsDto> GetCommentsAsync(int movieId);
+
     }
 }

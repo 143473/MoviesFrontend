@@ -49,7 +49,7 @@ else
                 </RadzenStack>
                 <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0rem">
                     <RadzenText TextStyle="TextStyle.Body1" Style="color: white" Class="rz-pr-2 rz-mb-7">Votes</RadzenText>
-                    <RadzenText TextStyle="TextStyle.Body1" Style="color: white" Class="rz-mb-7">@numberOfVotes</RadzenText>
+                    <RadzenText TextStyle="TextStyle.Body1" Style="color: white" Class="rz-mb-7">@numberOfVotes.ToString("N0")</RadzenText>
                 </RadzenStack>
                 <RadzenText TextStyle="TextStyle.H5" Style="color: white" Class="rz-pr-4 rz-mb-5">
                     <strong>Details</strong>
@@ -75,13 +75,13 @@ else
                                 <p Style="color: white; margin: 0px" Class="rz-pr-4">
                                     <strong>Budget</strong>
                                 </p>
-                                <p Style="color: white" Class="rz-pr-4">$@movie.Budget</p>
+                                <p Style="color: white" Class="rz-pr-4">$@movie.Budget.Value.ToString("N0")</p>
                             </div>
                             <div class="col-sm">
                                 <p Style="color: white; margin: 0px" Class="rz-pr-4">
                                     <strong>Revenue</strong>
                                 </p>
-                                <p Style="color: white" Class="rz-pr-4">$@movie.Revenue</p>
+                                <p Style="color: white" Class="rz-pr-4">$@movie.Revenue.Value.ToString("N0")</p>
                             </div>
                         </div>
                         <div class="row">
@@ -89,7 +89,7 @@ else
                                 <p Style="color: white; margin: 0px" Class="rz-pr-4">
                                     <strong>Runtime</strong>
                                 </p>
-                                <p Style="color: white" Class="rz-pr-4">@movie.Runtime minutes</p>
+                                <p Style="color: white" Class="rz-pr-4">@MinutesToHours(movie.Runtime.Value)</p>
                             </div>
                         </div>
                         <div class="row">
@@ -327,15 +327,6 @@ else
     {
         _navigation.NavigateTo($"/People/{id}");
     }
-    
-    private class Comment
-    {
-        public int Id { get; set; }
-        public string UserId { get; set; }
-        public string Text { get; set; }
-        public int MovieId { get; set; }
-        public string Username { get; set; }
-    }
 
     private async Task OnSubmit(CommentDto comment)
     {
@@ -368,6 +359,12 @@ else
     private void GetUserName()
     {
         username = _userService.GetUserName();
+    }
+
+    private string MinutesToHours(int minutes)
+    {
+        var time = TimeSpan.FromMinutes(minutes);
+        return $"{Math.Floor(time.TotalHours)}h {time.Minutes}min";
     }
 
 }

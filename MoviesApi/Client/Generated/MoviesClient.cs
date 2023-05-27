@@ -387,7 +387,7 @@ namespace movies_api
                     var content_ = new System.Net.Http.StringContent(json_);
                     content_.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json");
                     request_.Content = content_;
-                    request_.Method = new System.Net.Http.HttpMethod("GET");
+                    request_.Method = new System.Net.Http.HttpMethod("POST");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("application/json"));
 
                     PrepareRequest(client_, request_, urlBuilder_);
@@ -2267,8 +2267,8 @@ namespace movies_api
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.18.2.0 (NJsonSchema v10.8.0.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class MovieExtendedDTO
     {
-        [Newtonsoft.Json.JsonProperty("adult", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public bool? Adult { get; set; }
+        [Newtonsoft.Json.JsonProperty("place", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int? Place { get; set; }
 
         [Newtonsoft.Json.JsonProperty("backdrop_path", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public string Backdrop_path { get; set; }

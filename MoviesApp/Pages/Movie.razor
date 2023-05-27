@@ -1,14 +1,14 @@
 ﻿@page "/Movie/{Id:int}"
 @using MoviesApp.Services.Interfaces
 @using movies_api
-@inject IMovieService _movieService
+@inject IMovieService MovieService
 @using Radzen.Blazor
 @using Radzen
-@inject IUserService _userService
-@inject NotificationService _notificationService
-@inject NavigationManager _navigation
+@inject IUserService UserService
+@inject NotificationService NotificationService
+@inject NavigationManager Navigation
 
-@if (shouldRender == false)
+@if (_shouldRender == false)
 {
     <div class="d-flex justify-content-center">
         <div class="spinner-border" role="status">
@@ -21,35 +21,35 @@ else
     <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center" Wrap="FlexWrap.Wrap">
         <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Start" Gap="3rem" Class="rz-p-4">
 
-            <RadzenImage Path="@movie.Poster_path" Style="border-radius: 1%;"/>
+            <RadzenImage Path="@_movie.Poster_path" Style="border-radius: 1%;"/>
 
             <RadzenStack Orientation="Orientation.Vertical" JustifyContent="JustifyContent.Start" Gap="0rem">
                 <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.SpaceBetween">
                     <RadzenText TextStyle="TextStyle.H3" Style="color: white" Class="rz-mb-5">
-                        <strong>@movie.Title</strong> <span style="color: gray">(@ToYear(movie.Release_date))</span>
+                        <strong>@_movie.Title</strong> <span style="color: gray">(@ToYear(_movie.Release_date))</span>
                     </RadzenText>
-                    <FavoriteButton OnFavoriteSingle="m => Favorite(movie)" MovieSingle="movie"></FavoriteButton>
+                    <FavoriteButton OnFavoriteSingle="m => Favorite(_movie)" MovieSingle="_movie"></FavoriteButton>
                 </RadzenStack>
-                <RadzenText TextStyle="TextStyle.H6" Style="color: white; font-style: italic" Class="rz-mb-7">"@movie.Tagline"</RadzenText>
+                <RadzenText TextStyle="TextStyle.H6" Style="color: white; font-style: italic" Class="rz-mb-7">"@_movie.Tagline"</RadzenText>
                 <RadzenText TextStyle="TextStyle.H5" Style="color: white" Class="rz-pr-4">
                     <strong>Overview</strong>
                 </RadzenText>
-                <RadzenText TextStyle="TextStyle.Body1" Style="color: white" Class="rz-mb-7">@movie.Overview</RadzenText>
+                <RadzenText TextStyle="TextStyle.Body1" Style="color: white" Class="rz-mb-7">@_movie.Overview</RadzenText>
                 <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0rem">
                     <RadzenText TextStyle="TextStyle.H5" Style="color: white" Class="rz-pr-4">
                         <strong>Rating</strong>
                     </RadzenText>
                 </RadzenStack>
                 <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0rem">
-                    <RadzenText TextStyle="TextStyle.H4" Style="color: white" Class="rz-pr-4">@movieRating.ToString("#.##")</RadzenText>
+                    <RadzenText TextStyle="TextStyle.H4" Style="color: white" Class="rz-pr-4">@_movieRating.ToString("#.##")</RadzenText>
                     <div class="rz-pr-4 rz-text-align-center">
-                        <RadzenRating TValue="int" Stars="10" Value=@value Change=@(args => value = args)></RadzenRating>
+                        <RadzenRating TValue="int" Stars="10" Value=@_value Change=@(args => _value = args)></RadzenRating>
                     </div>
-                    <RadzenButton IsBusy="@loading" Shade="Shade.Lighter" Click=@(() => RateMovie(movie.Id)) Text="Rate" ButtonStyle="ButtonStyle.Light"/>
+                    <RadzenButton IsBusy="@_loading" Shade="Shade.Lighter" Click=@(() => RateMovie(_movie.Id)) Text="Rate" ButtonStyle="ButtonStyle.Light"/>
                 </RadzenStack>
                 <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0rem">
                     <RadzenText TextStyle="TextStyle.Body1" Style="color: white" Class="rz-pr-2 rz-mb-7">Votes</RadzenText>
-                    <RadzenText TextStyle="TextStyle.Body1" Style="color: white" Class="rz-mb-7">@numberOfVotes</RadzenText>
+                    <RadzenText TextStyle="TextStyle.Body1" Style="color: white" Class="rz-mb-7">@_numberOfVotes.ToString("N0")</RadzenText>
                 </RadzenStack>
                 <RadzenText TextStyle="TextStyle.H5" Style="color: white" Class="rz-pr-4 rz-mb-5">
                     <strong>Details</strong>
@@ -58,46 +58,51 @@ else
                     <div class="container" style="padding-left: 0">
                         <div class="row">
                             <div class="col-sm">
-                                <p Style="color: white; margin: 0px" Class="rz-pr-4">
+                                <p Style="color: white; margin: 0" Class="rz-pr-4">
                                     <strong>Status</strong>
                                 </p>
-                                <p Style="color: white" Class="rz-pr-4">@movie.Status</p>
+                                <p Style="color: white" Class="rz-pr-4">@_movie.Status</p>
                             </div>
                             <div class="col-sm">
-                                <p Style="color: white; margin: 0px" Class="rz-pr-4">
+                                <p Style="color: white; margin: 0" Class="rz-pr-4">
                                     <strong>Original Language</strong>
                                 </p>
-                                <p Style="color: white" Class="rz-pr-4">@ToOriginalLanguage(movie.Original_language)</p>
+                                <p Style="color: white" Class="rz-pr-4">@ToOriginalLanguage(_movie.Original_language)</p>
                             </div>
                         </div>
                         <div class="row">
                             <div class="col-sm">
-                                <p Style="color: white; margin: 0px" Class="rz-pr-4">
+                                <p Style="color: white; margin: 0" Class="rz-pr-4">
                                     <strong>Budget</strong>
                                 </p>
-                                <p Style="color: white" Class="rz-pr-4">$@movie.Budget</p>
+                                <p Style="color: white" Class="rz-pr-4">$@_movie.Budget?.ToString("N0")</p>
                             </div>
                             <div class="col-sm">
-                                <p Style="color: white; margin: 0px" Class="rz-pr-4">
+                                <p Style="color: white; margin: 0" Class="rz-pr-4">
                                     <strong>Revenue</strong>
                                 </p>
-                                <p Style="color: white" Class="rz-pr-4">$@movie.Revenue</p>
+                                <p Style="color: white" Class="rz-pr-4">$@_movie.Revenue?.ToString("N0")</p>
                             </div>
                         </div>
                         <div class="row">
                             <div class="col-sm">
-                                <p Style="color: white; margin: 0px" Class="rz-pr-4">
+                                <p Style="color: white; margin: 0" Class="rz-pr-4">
                                     <strong>Runtime</strong>
                                 </p>
-                                <p Style="color: white" Class="rz-pr-4">@movie.Runtime minutes</p>
+                                <p Style="color: white" Class="rz-pr-4">
+                                    @if (_movie.Runtime != null)
+                                    {
+                                        @MinutesToHours(_movie.Runtime.Value)
+                                    }
+                                </p>
                             </div>
                         </div>
                         <div class="row">
                             <div class="col-sm">
-                                <p Style="color: white; margin: 0px" Class="rz-pr-4">
+                                <p Style="color: white; margin: 0" Class="rz-pr-4">
                                     <strong>Genres</strong>
                                 </p>
-                                <p Style="color: white" Class="rz-pr-4">@genres</p>
+                                <p Style="color: white" Class="rz-pr-4">@_genres</p>
                             </div>
                         </div>
                     </div>
@@ -105,13 +110,13 @@ else
             </RadzenStack>
         </RadzenStack>
     </RadzenStack>
-    <RadzenTabs @bind-SelectedIndex=@selectedIndex Change=@OnChange RenderMode="TabRenderMode.Server">
+    <RadzenTabs @bind-SelectedIndex=@_selectedIndex Change=@OnChange RenderMode="TabRenderMode.Server">
         <Tabs>
-            @if (movieCredits.Cast != null || movieCredits.Cast.Any() || movieCredits.Crew != null || movieCredits.Crew.Any())
+            @if (_movieCredits.Cast != null || _movieCredits.Crew != null)
             {
                 <RadzenTabsItem Text="Actors" Style="background-color: #04080F; font-weight: bold;">
                     <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Start" Style="overflow: scroll">
-                        @foreach (var actor in cast)
+                        @foreach (var actor in _cast)
                         {
                             <RadzenStack Orientation="Orientation.Vertical" JustifyContent="JustifyContent.Start" Gap="0.1em">
                                 <RadzenStack @onclick="() => GoToPerson(actor.Id)" Style="cursor: pointer;">
@@ -125,7 +130,7 @@ else
                 </RadzenTabsItem>
                 <RadzenTabsItem Text="Directors" Style="background-color: #04080F; font-weight: bold;">
                     <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Start" Style="overflow: scroll">
-                        @foreach (var director in directors)
+                        @foreach (var director in _directors)
                         {
                             <RadzenStack Orientation="Orientation.Vertical" JustifyContent="JustifyContent.Start" Gap="0.1em">
                                 <RadzenStack @onclick="() => GoToPerson(director.Id)" Style="cursor: pointer;">
@@ -139,7 +144,7 @@ else
                 </RadzenTabsItem>
                 <RadzenTabsItem Text="Crew" Style="background-color: #04080F; font-weight: bold;">
                     <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Start" Style="overflow: scroll">
-                        @foreach (var crewMember in crew)
+                        @foreach (var crewMember in _crew)
                         {
                             <RadzenStack Orientation="Orientation.Vertical" JustifyContent="JustifyContent.Start" Gap="0.1em">
                                 <RadzenStack @onclick="() => GoToPerson(crewMember.Id)" Style="cursor: pointer;">
@@ -156,7 +161,7 @@ else
     </RadzenTabs>
     <RadzenTemplateForm TItem="CommentDto" Data=@_comment Submit=@OnSubmit InvalidSubmit=@OnInvalidSubmit>
         <RadzenFormField Text="Comment" Variant="Variant.Text" Style="width: 100%; outline-width: 0;">
-            <RadzenTextBox @bind-Value="@commentText" Style="width: 100%;" />
+            <RadzenTextBox @bind-Value="@_commentText" Style="color: white; width: 100%;" />
         </RadzenFormField>
         <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End" Gap="0rem">
         <RadzenButton ButtonType="ButtonType.Submit" Text="Comment" ButtonStyle="ButtonStyle.Light"></RadzenButton>
@@ -181,72 +186,71 @@ else
 
     [Parameter]
     public int Id { get; set; }
-    string commentText = "";
-    int value;
-    private MovieResponseDto movie;
-    private RatingDto rating;
-    private Boolean movieInDb = false;
-    private Boolean shouldRender = false;
-    private string? userId;
-    private double movieRating;
-    private Boolean loading = false;
-    private int numberOfVotes;
-    private string genres = "No genres available";
-    int selectedIndex = 0;
-    MovieCreditsResponseDto movieCredits;
-    List<MovieCastDto> cast = new List<MovieCastDto>();
-    List<MovieCrewDto> directors = new List<MovieCrewDto>();
-    List<MovieCrewDto> crew = new List<MovieCrewDto>();
-    CommentDto _comment = new CommentDto();
+    string _commentText = "";
+    int _value;
+    private MovieResponseDto _movie = null!;
+    private RatingDto _rating = null!;
+    private Boolean _shouldRender = false;
+    private string? _userId;
+    private double _movieRating;
+    private Boolean _loading = false;
+    private int _numberOfVotes;
+    private string _genres = "No genres available";
+    int _selectedIndex = 0;
+    MovieCreditsResponseDto _movieCredits = null!;
+    List<MovieCastDto> _cast = new List<MovieCastDto>();
+    List<MovieCrewDto> _directors = new List<MovieCrewDto>();
+    List<MovieCrewDto> _crew = new List<MovieCrewDto>();
+    readonly CommentDto _comment = new CommentDto();
     List<CommentDto> _comments = new List<CommentDto>();
     CommentsDto _commentsDto = new CommentsDto();
-    private string username;
+    private string _username = null!;
 
     protected override async Task OnInitializedAsync()
     {   
         SetUserId();
-        movie = new MovieResponseDto();
-        rating = new RatingDto();
-        movie = await _movieService.GetMovieAsync(userId, Id);
-        rating = await _movieService.GetMovieRatingAsync(Id);
-        if (rating.MovieId.Value == movie.Id)
+        _movie = new MovieResponseDto();
+        _rating = new RatingDto();
+        _movie = await MovieService.GetMovieAsync(_userId, Id);
+        _rating = await MovieService.GetMovieRatingAsync(Id);
+        if (_rating.MovieId != null && _rating.MovieId.Value == _movie.Id)
         {
-            movieRating = rating.RatingValue.Value;
-            numberOfVotes = rating.Votes.Value;
+            if (_rating.RatingValue != null) _movieRating = _rating.RatingValue.Value;
+            if (_rating.Votes != null) _numberOfVotes = _rating.Votes.Value;
         }
         else
         {
-            movieRating = movie.Vote_average.Value;
-            numberOfVotes = movie.Vote_count.Value;
+            if (_movie.Vote_average != null) _movieRating = _movie.Vote_average.Value;
+            if (_movie.Vote_count != null) _numberOfVotes = _movie.Vote_count.Value;
         }
-        if (movie.Genres != null)
+        if (_movie.Genres != null)
         {
-            genres = String.Join(", ", movie.Genres.Select(g => g.Name));
+            _genres = String.Join(", ", _movie.Genres.Select(g => g.Name));
         }
 
-        movieCredits = await _movieService.GetMovieCreditsAsync(Id);
+        _movieCredits = await MovieService.GetMovieCreditsAsync(Id);
 
-        cast = movieCredits.Cast.OrderByDescending(c => c.Popularity).ToList();
-        directors =  movieCredits.Crew.Where(c => c.Job == "Director").ToList();
-        crew = movieCredits.Crew.Where(c => !c.Job.Equals("Director")).ToList();
-        _commentsDto = await _movieService.GetCommentsAsync(Id);
+        _cast = _movieCredits.Cast.OrderByDescending(c => c.Popularity).ToList();
+        _directors =  _movieCredits.Crew.Where(c => c.Job == "Director").ToList();
+        _crew = _movieCredits.Crew.Where(c => !c.Job.Equals("Director")).ToList();
+        _commentsDto = await MovieService.GetCommentsAsync(Id);
         _comments = _commentsDto.Comments.ToList();
         GetUserName();
     }
 
     private async void CheckRatingInDb()
     {
-        rating = await _movieService.GetMovieRatingAsync(Id);
-        if (rating.MovieId.Value == movie.Id)
+        _rating = await MovieService.GetMovieRatingAsync(Id);
+        if (_rating.MovieId != null && _rating.MovieId.Value == _movie.Id)
         {
-            movieRating = rating.RatingValue.Value;
-            numberOfVotes = rating.Votes.Value;
+            if (_rating.RatingValue != null) _movieRating = _rating.RatingValue.Value;
+            if (_rating.Votes != null) _numberOfVotes = _rating.Votes.Value;
         }
     }
 
     protected override Task OnAfterRenderAsync(bool firstRender)
     {
-        shouldRender = true;
+        _shouldRender = true;
         return base.OnAfterRenderAsync(firstRender);
     }
 
@@ -254,57 +258,57 @@ else
 
     private async void RateMovie(int? id)
     {
-        if (value == 0)
+        if (_value == 0)
         {
-            _notificationService.Notify(new NotificationMessage {Severity = NotificationSeverity.Info, Summary = "No rating value selected", Duration = 4000});
+            NotificationService.Notify(new NotificationMessage {Severity = NotificationSeverity.Info, Summary = "No rating value selected", Duration = 4000});
         }
-        else if (userId == null)
+        else if (_userId == null)
         {
-            _notificationService.Notify(new NotificationMessage {Severity = NotificationSeverity.Info, Summary = "Log in to rate", Duration = 4000});
+            NotificationService.Notify(new NotificationMessage {Severity = NotificationSeverity.Info, Summary = "Log in to rate", Duration = 4000});
         }
         else
         {
-            loading = true;
+            _loading = true;
             RatedMovieDto ratedMovie = new RatedMovieDto()
             {
                 RatedMovieId = id,
-                Rating = value,
-                UserId = userId
+                Rating = _value,
+                UserId = _userId
             };
 
-            await _movieService.AddRatingAsync(ratedMovie);
+            await MovieService.AddRatingAsync(ratedMovie);
 
             CheckRatingInDb();
             await Task.Delay(1000);
-            loading = false;
-            _notificationService.Notify(new NotificationMessage {Severity = NotificationSeverity.Success, Summary = "Rating Saved", Duration = 4000});
+            _loading = false;
+            NotificationService.Notify(new NotificationMessage {Severity = NotificationSeverity.Success, Summary = "Rating Saved", Duration = 4000});
             StateHasChanged();
         }
     }
 
     private void SetUserId()
     {
-        userId = _userService.GetUserId();
+        _userId = UserService.GetUserId();
     }
     
     private async Task Favorite(MovieResponseDto movie)
     {
         movie.IsFavorite = !movie.IsFavorite;
-        FavoritesDto favorite = new() { MovieId = movie.Id, UserId = userId };
+        FavoritesDto favorite = new() { MovieId = movie.Id, UserId = _userId };
 
         try
         {
-            if (movie.IsFavorite.Value)
+            if (movie.IsFavorite != null && movie.IsFavorite.Value)
             {   
 
-                await _movieService.AddFavoriteMovieAsync(favorite);
-                _notificationService.Notify(new NotificationMessage {Severity = NotificationSeverity.Info, Summary = "Movie saved in favorites", Duration = 4000});
+                await MovieService.AddFavoriteMovieAsync(favorite);
+                NotificationService.Notify(new NotificationMessage {Severity = NotificationSeverity.Info, Summary = "Movie saved in favorites", Duration = 4000});
                 
             }
             else
             {
-                await _movieService.RemoveFavoriteMovieAsync(favorite);
-                _notificationService.Notify(new NotificationMessage {Severity = NotificationSeverity.Info, Summary = "Movie removed from favorites", Duration = 4000});
+                await MovieService.RemoveFavoriteMovieAsync(favorite);
+                NotificationService.Notify(new NotificationMessage {Severity = NotificationSeverity.Info, Summary = "Movie removed from favorites", Duration = 4000});
 
             }
         }
@@ -325,49 +329,46 @@ else
     
     private void GoToPerson(int? id)
     {
-        _navigation.NavigateTo($"/People/{id}");
-    }
-    
-    private class Comment
-    {
-        public int Id { get; set; }
-        public string UserId { get; set; }
-        public string Text { get; set; }
-        public int MovieId { get; set; }
-        public string Username { get; set; }
+        Navigation.NavigateTo($"/People/{id}");
     }
 
-    private async Task OnSubmit(CommentDto comment)
+    private async Task OnSubmit()
     {
-        if (userId != null)
+        if (_userId != null)
         {
-            comment = new CommentDto()
+            var comment = new CommentDto()
             {
                 MovieId = Id,
-                Text = commentText,
-                UserId = userId,
-                Username = username
+                Text = _commentText,
+                UserId = _userId,
+                Username = _username
             };
-            await _movieService.AddCommentAsync(comment);
+            await MovieService.AddCommentAsync(comment);
             // Should probably just return the new comment and add to the list to avoid all the calls the the api
-            _commentsDto = await _movieService.GetCommentsAsync(Id);
+            _commentsDto = await MovieService.GetCommentsAsync(Id);
             _comments = _commentsDto.Comments.ToList();
-            commentText = "";
+            _commentText = "";
         }
         else
         {
-            _notificationService.Notify(new NotificationMessage {Severity = NotificationSeverity.Info, Summary = "Log in to leave comment", Duration = 4000});
+            NotificationService.Notify(new NotificationMessage {Severity = NotificationSeverity.Info, Summary = "Log in to leave comment", Duration = 4000});
         }
     }
 
     private void OnInvalidSubmit(FormInvalidSubmitEventArgs obj)
     {
-        _notificationService.Notify(new NotificationMessage {Severity = NotificationSeverity.Error, Summary = "Comment could not be saved", Duration = 4000});
+        NotificationService.Notify(new NotificationMessage {Severity = NotificationSeverity.Error, Summary = "Comment could not be saved", Duration = 4000});
     }
     
     private void GetUserName()
     {
-        username = _userService.GetUserName();
+        _username = UserService.GetUserName();
+    }
+
+    private string MinutesToHours(int minutes)
+    {
+        var time = TimeSpan.FromMinutes(minutes);
+        return $"{Math.Floor(time.TotalHours)}h {time.Minutes}min";
     }
 
 }

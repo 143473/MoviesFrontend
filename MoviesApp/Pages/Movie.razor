@@ -160,7 +160,7 @@ else
         </Tabs>
     </RadzenTabs>
     <RadzenTemplateForm TItem="CommentDto" Data=@_comment Submit=@OnSubmit InvalidSubmit=@OnInvalidSubmit>
-        <RadzenFormField Text="Comment" Variant="Variant.Text" Style="width: 100%; outline-width: 0;">
+        <RadzenFormField Text="Comment" Variant="Variant.Text" Style="width: 100%; outline-width: 0; color: #6c757d">
             <RadzenTextBox @bind-Value="@_commentText" Style="color: white; width: 100%;" />
         </RadzenFormField>
         <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End" Gap="0rem">
@@ -170,16 +170,24 @@ else
     <RadzenText TextStyle="TextStyle.H5" Style="color: white" Class="rz-mt-4">
         <strong>Comments</strong>
     </RadzenText>
- 
+
+    <RadzenStack Class="rz-mb-10" Orientation="Orientation.Vertical" JustifyContent="JustifyContent.Start" Gap="0em">
+    @if (_comments.Count == 0)
+    {
+        <RadzenText TextStyle="TextStyle.H6" Style="color: #6c757d; font-style: italic" Class="rz-mt-4">
+           No comments to display
+        </RadzenText>
+    }
     @foreach (var comment in _comments)
     {
-        <RadzenCard Class="rz-py-8 rz-pl-0" Style="max-width: 100%; background-color: #04080F">
-            <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Start" Gap="1rem">
+        <RadzenCard Class="rz-py-4 rz-pl-0 rz-my-2 border-1" Style="max-width: 100%; background-color: #343a40;">
+            <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Start" Gap="1rem" Class="rz-ml-4">
                 <RadzenText TextStyle="TextStyle.Body1" Style="color: white">@comment.Username:</RadzenText>
                 <RadzenText TextStyle="TextStyle.Body1" Style="color: white">@comment.Text</RadzenText>
             </RadzenStack>
         </RadzenCard>
     }
+    </RadzenStack>
 }
 
 @code {
@@ -190,10 +198,10 @@ else
     int _value;
     private MovieResponseDto _movie = null!;
     private RatingDto _rating = null!;
-    private Boolean _shouldRender = false;
+    private Boolean _shouldRender;
     private string? _userId;
     private double _movieRating;
-    private Boolean _loading = false;
+    private Boolean _loading;
     private int _numberOfVotes;
     private string _genres = "No genres available";
     int _selectedIndex = 0;
@@ -334,6 +342,10 @@ else
 
     private async Task OnSubmit()
     {
+        if (_commentText.Equals(""))
+        {
+            return;
+        }
         if (_userId != null)
         {
             var comment = new CommentDto()

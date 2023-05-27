@@ -48,40 +48,42 @@ else
     </RadzenStack>
     if (_shouldCompare == false)
     {
-        <RadzenDataList AllowVirtualization="false" Style="width: 100%; max-width: 1000px;"
-                        IsLoading=@_isLoading @ref="@_datalist" LoadData="LoadDataList"
-                        Data="@_movieStatistics" TItem="MovieExtendedDTO" PageSize="5" PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="true">
-            <Template Context="movie">
-                <RadzenImage Path="@(movie.Backdrop_path)" Class="image-background" @onclick=@(() => GoToMovie(movie.Id)) Style="cursor: pointer"></RadzenImage>
-                <RadzenRow Gap="10" class="p-2">
-                    <RadzenColumn Size="5" SizeMD="2" SizeLG="2" Style="cursor: pointer; ">
-                        <RadzenImage Path="@(movie.Poster_path)" Style="border-radius: 1%; height: 150px;"/>
-                    </RadzenColumn>
-                    <RadzenColumn Size="3" SizeMD="5" SizeLG="5">
-                        <RadzenText TextStyle="TextStyle.Overline" TagName="TagName.H5" Class="rz-mb-4 body-text">Title</RadzenText>
-                        <RadzenText TextStyle="TextStyle.DisplayH6" class="body-text">@(movie.Title)</RadzenText>
-                        <RadzenText TextStyle="TextStyle.Subtitle1" class="body-text">@(movie.Original_title) (@movie.Original_language)</RadzenText>
-                        <RadzenText TextStyle="TextStyle.Subtitle1" class="body-text">@(movie.Release_date)</RadzenText>
-                    </RadzenColumn>
-                    <RadzenColumn Size="3" SizeMD="5" SizeLG="5">
-                        <RadzenRow Gap="50" JustifyContent="JustifyContent.Center">
-                            <RadzenColumn Size="12" SizeMD="3" SizeLG="3">
-                                <RadzenText TextStyle="TextStyle.Overline" TagName="TagName.H5" Class="rz-mb-4 body-text">Popularity</RadzenText>
-                                <RadzenText TextStyle="TextStyle.DisplayH6" class="body-text">@movie.Popularity</RadzenText>
-                            </RadzenColumn>
-                            <RadzenColumn Size="12" SizeMD="3" SizeLG="3">
-                                <RadzenText TextStyle="TextStyle.Overline" TagName="TagName.H5" Class="rz-mb-4 body-text">Rating</RadzenText>
-                                <RadzenText TextStyle="TextStyle.DisplayH6" class="body-text">@(movie.Vote_average)</RadzenText>
-                            </RadzenColumn>
-                            <RadzenColumn Size="12" SizeMD="3" SizeLG="3">
-                                <RadzenText TextStyle="TextStyle.Overline" TagName="TagName.H5" Class="rz-mb-4 body-text">Votes Count</RadzenText>
-                                <RadzenText TextStyle="TextStyle.DisplayH6" class="body-text">@(movie.Vote_count)</RadzenText>
-                            </RadzenColumn>
-                        </RadzenRow>
-                    </RadzenColumn>
-                </RadzenRow>
-            </Template>
-        </RadzenDataList>
+        <RadzenStack JustifyContent="JustifyContent.Center" Orientation="Orientation.Horizontal" Class="mt-5">
+            <RadzenDataList AllowVirtualization="false" Style="width: 100%; max-width: 1000px;"
+                            IsLoading=@_isLoading @ref="@_datalist" LoadData="LoadDataList"
+                            Data="@_movieStatistics" TItem="MovieExtendedDTO" PageSize="5">
+                <Template Context="movie">
+                    <RadzenImage Path="@(movie.Backdrop_path)" Class="image-background" @onclick=@(() => GoToMovie(movie.Id)) Style="cursor: pointer"></RadzenImage>
+                    <RadzenRow Gap="10" class="p-2">
+                        <RadzenColumn Size="5" SizeMD="2" SizeLG="2" Style="cursor: pointer; ">
+                            <RadzenImage Path="@(movie.Poster_path)" Style="border-radius: 1%; height: 150px;"/>
+                        </RadzenColumn>
+                        <RadzenColumn Size="3" SizeMD="5" SizeLG="5">
+                            <RadzenText TextStyle="TextStyle.Overline" TagName="TagName.H5" Class="rz-mb-4 body-text">Title</RadzenText>
+                            <RadzenText TextStyle="TextStyle.DisplayH6" class="body-text">@(movie.Title)</RadzenText>
+                            <RadzenText TextStyle="TextStyle.Subtitle1" class="body-text">@(movie.Original_title) (@movie.Original_language)</RadzenText>
+                            <RadzenText TextStyle="TextStyle.Subtitle1" class="body-text">@(movie.Release_date)</RadzenText>
+                        </RadzenColumn>
+                        <RadzenColumn Size="3" SizeMD="5" SizeLG="5">
+                            <RadzenRow Gap="50" JustifyContent="JustifyContent.Center">
+                                <RadzenColumn Size="12" SizeMD="3" SizeLG="3">
+                                    <RadzenText TextStyle="TextStyle.Overline" TagName="TagName.H5" Class="rz-mb-4 body-text">Popularity</RadzenText>
+                                    <RadzenText TextStyle="TextStyle.DisplayH6" class="body-text">@movie.Popularity</RadzenText>
+                                </RadzenColumn>
+                                <RadzenColumn Size="12" SizeMD="3" SizeLG="3">
+                                    <RadzenText TextStyle="TextStyle.Overline" TagName="TagName.H5" Class="rz-mb-4 body-text">Rating</RadzenText>
+                                    <RadzenText TextStyle="TextStyle.DisplayH6" class="body-text">@(movie.Vote_average)</RadzenText>
+                                </RadzenColumn>
+                                <RadzenColumn Size="12" SizeMD="3" SizeLG="3">
+                                    <RadzenText TextStyle="TextStyle.Overline" TagName="TagName.H5" Class="rz-mb-4 body-text">Votes Count</RadzenText>
+                                    <RadzenText TextStyle="TextStyle.DisplayH6" class="body-text">@(movie.Vote_count)</RadzenText>
+                                </RadzenColumn>
+                            </RadzenRow>
+                        </RadzenColumn>
+                    </RadzenRow>
+                </Template>
+            </RadzenDataList>
+        </RadzenStack>
     }
 }
 
@@ -118,7 +120,7 @@ else
                 </RadzenChart>
             </RadzenTabsItem>
             <RadzenTabsItem Text="Votes Count" Style="background-color: #04080F">
-                <RadzenChart @ref="@_radzenChart" >
+                <RadzenChart @ref="@_radzenChart">
                     <RadzenAreaSeries Smooth="true" Data="@_movieStatistics" CategoryProperty="Place" Title="@_startingYear.ToString()" ValueProperty="Vote_count" TItem="@MovieExtendedDTO" RenderingOrder="1"/>
                     <RadzenAreaSeries Smooth="true" Data="@_movieStatistics2" CategoryProperty="Place" Title="@_startingYear2.ToString()" LineType="LineType.Dashed" ValueProperty="Vote_count" TItem="@MovieExtendedDTO"/>
                     <RadzenCategoryAxis Padding="20"/>
@@ -143,12 +145,12 @@ else
     private SortBy _sortBy2;
     private int _startingYear;
     private int _startingYear2;
-    
+
     private List<MovieExtendedDTO> _filteredMovies = null!;
     private List<MovieExtendedDTO> _filteredMovies2 = null!;
     private IEnumerable<MovieExtendedDTO> _movieStatistics = null!;
     private IEnumerable<MovieExtendedDTO> _movieStatistics2 = null!;
-    
+
     private RadzenDataList<MovieExtendedDTO> _datalist = new RadzenDataList<MovieExtendedDTO>();
     private RadzenTabs _radzenTabs = new RadzenTabs();
     private RadzenChart _radzenChart = new RadzenChart();
@@ -157,13 +159,13 @@ else
     {
         _filteredMovies = new List<MovieExtendedDTO>();
         _filteredMovies2 = new List<MovieExtendedDTO>();
-        
+
         _shouldCompare = false;
         _startingYear = GetDecades().Last();
         _startingYear2 = 2000;
         _sortBy = SortBy.Popularity_desc;
         _sortBy2 = SortBy.Popularity_desc;
-        
+
         await LoadData();
     }
 
@@ -242,4 +244,5 @@ else
     {
         NavigationManager.NavigateTo($"/Movie/{id}");
     }
+
 }

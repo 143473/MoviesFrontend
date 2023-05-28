@@ -6,7 +6,6 @@ namespace MoviesApp.Services;
 public class MovieService : IMovieService
 {
     private readonly IMoviesClient _moviesClient;
-    private string api_key;
 
     public MovieService(IMoviesClient moviesClient)
     {

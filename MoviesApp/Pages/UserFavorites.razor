@@ -31,9 +31,7 @@
                 <RadzenText TextStyle="TextStyle.H4" Style="color: white">No favorites in your list</RadzenText>
             </RadzenStack>
         }
-        <div style="height: 900px; overflow-y: scroll">
-            <MovieList Movies="@movies.Results" OnFavorite="movie => RemoveFavorite(movie)"></MovieList>
-        </div>
+        <MovieList Movies="@movies.Results" OnFavorite="movie => RemoveFavorite(movie)"></MovieList>
     }
     </Authorized>
 </AuthorizeView>

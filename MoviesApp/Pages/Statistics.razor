@@ -1,0 +1,250 @@
+@page "/Statistics"
+@using movies_api
+@using MoviesApp.Services.Interfaces
+@inject IMovieService MovieService
+@inject NavigationManager NavigationManager
+@using Radzen.Blazor
+@using Radzen
+
+
+@if (_shouldRender == false)
+{
+    <div class="d-flex justify-content-center">
+        <div class="spinner-border" role="status"></div>
+    </div>
+}
+else
+{
+    <MovieHeader/>
+    <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center">
+        <RadzenStack Orientation="Orientation.Vertical" Gap="0" JustifyContent="JustifyContent.Center" Style="width: 100%; max-width: 350px;">
+            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.5rem" Class="rz-p-2">
+                <RadzenLabel Text="Select decade " class="body-text"/>
+                <RadzenDropDown @bind-Value="@_startingYear" Data="GetDecades()" Style="width: 100%; max-width: 200px;" Placeholder="Starting Year"/>
+            </RadzenStack>
+            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.5rem" Class="rz-p-2">
+                <RadzenLabel Text="Top 10 Movies" class="body-text"/>
+                <RadzenDropDown @bind-Value="@_sortBy" Data="GetSortingOptions()" Style="width: 100%; max-width: 200px;" Placeholder="Starting Year"/>
+            </RadzenStack>
+        </RadzenStack>
+        @if (_shouldCompare)
+        {
+            <RadzenStack Orientation="Orientation.Vertical" Gap="0" JustifyContent="JustifyContent.Center" Style="width: 100%; max-width: 400px;">
+
+                <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.5rem" Class="rz-p-2">
+                    <RadzenLabel Text="Select decade " class="body-text"/>
+                    <RadzenDropDown @bind-Value="@_startingYear2" Data="GetDecades()" Style="width: 100%; max-width: 200px;" Placeholder="Starting Year"/>
+                </RadzenStack>
+                <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.5rem" Class="rz-p-2">
+                    <RadzenLabel Text="Top 10 Movies" class="body-text"/>
+                    <RadzenDropDown @bind-Value="@_sortBy2" Data="GetSortingOptions()" Style="width: 100%; max-width: 200px;" Placeholder="Starting Year"/>
+                </RadzenStack>
+            </RadzenStack>
+        }
+    </RadzenStack>
+
+    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Center" Gap="0.5rem" Class="rz-p-2">
+        <RadzenButton Text=@(_shouldCompare ? "Top 10 Movies" : "Compare Decades") Click="@(() => _shouldCompare = !_shouldCompare)" ButtonStyle=@(!_shouldCompare ? ButtonStyle.Light : ButtonStyle.Dark)
+                      Style="width: 100%; max-width: 200px;"/>
+        <RadzenButton Text=@(_shouldCompare ? "Update Chart" : "Get List") Click="@(_shouldCompare ? UpdateStatisticsLists : LoadDataList)" ButtonStyle=@(!_shouldCompare ? ButtonStyle.Light : ButtonStyle.Dark) Style="width: 100%; max-width: 200px;"/>
+    </RadzenStack>
+    if (_shouldCompare == false)
+    {
+        <RadzenStack JustifyContent="JustifyContent.Center" Orientation="Orientation.Horizontal" Class="mt-5">
+            <RadzenDataList AllowVirtualization="false" Style="width: 100%; max-width: 1000px;"
+                            IsLoading=@_isLoading @ref="@_datalist" LoadData="LoadDataList"
+                            Data="@_movieStatistics" TItem="MovieExtendedDTO" PageSize="5">
+                <Template Context="movie">
+                    <RadzenImage Path="@(movie.Backdrop_path)" Class="image-background" @onclick=@(() => GoToMovie(movie.Id)) Style="cursor: pointer"></RadzenImage>
+                    <RadzenRow Gap="10" class="p-2">
+                        <RadzenColumn Size="5" SizeMD="2" SizeLG="2" Style="cursor: pointer; ">
+                            <RadzenImage Path="@(movie.Poster_path)" Style="border-radius: 1%; height: 150px;"/>
+                        </RadzenColumn>
+                        <RadzenColumn Size="3" SizeMD="5" SizeLG="5">
+                            <RadzenText TextStyle="TextStyle.Overline" TagName="TagName.H5" Class="rz-mb-4 body-text">Title</RadzenText>
+                            <RadzenText TextStyle="TextStyle.DisplayH6" class="body-text">@(movie.Title)</RadzenText>
+                            <RadzenText TextStyle="TextStyle.Subtitle1" class="body-text">@(movie.Original_title) (@movie.Original_language)</RadzenText>
+                            <RadzenText TextStyle="TextStyle.Subtitle1" class="body-text">@(movie.Release_date)</RadzenText>
+                        </RadzenColumn>
+                        <RadzenColumn Size="3" SizeMD="5" SizeLG="5">
+                            <RadzenRow Gap="50" JustifyContent="JustifyContent.Center">
+                                <RadzenColumn Size="12" SizeMD="3" SizeLG="3">
+                                    <RadzenText TextStyle="TextStyle.Overline" TagName="TagName.H5" Class="rz-mb-4 body-text">Popularity</RadzenText>
+                                    <RadzenText TextStyle="TextStyle.DisplayH6" class="body-text">@movie.Popularity</RadzenText>
+                                </RadzenColumn>
+                                <RadzenColumn Size="12" SizeMD="3" SizeLG="3">
+                                    <RadzenText TextStyle="TextStyle.Overline" TagName="TagName.H5" Class="rz-mb-4 body-text">Rating</RadzenText>
+                                    <RadzenText TextStyle="TextStyle.DisplayH6" class="body-text">@(movie.Vote_average)</RadzenText>
+                                </RadzenColumn>
+                                <RadzenColumn Size="12" SizeMD="3" SizeLG="3">
+                                    <RadzenText TextStyle="TextStyle.Overline" TagName="TagName.H5" Class="rz-mb-4 body-text">Votes Count</RadzenText>
+                                    <RadzenText TextStyle="TextStyle.DisplayH6" class="body-text">@(movie.Vote_count)</RadzenText>
+                                </RadzenColumn>
+                            </RadzenRow>
+                        </RadzenColumn>
+                    </RadzenRow>
+                </Template>
+            </RadzenDataList>
+        </RadzenStack>
+    }
+}
+
+@if (_shouldCompare)
+{
+    <RadzenTabs @ref="@_radzenTabs" RenderMode="TabRenderMode.Server">
+        <Tabs>
+            <RadzenTabsItem Text="Popularity" Style="background-color: #04080F">
+                <RadzenChart @ref="@_radzenChart">
+                    <RadzenAreaSeries Smooth="true" Data="@_movieStatistics" CategoryProperty="Place" Title="@_startingYear.ToString()" ValueProperty="Popularity" RenderingOrder="1" TItem="@MovieExtendedDTO"/>
+                    <RadzenAreaSeries Smooth="true" Data="@_movieStatistics2" CategoryProperty="Place" Title="@_startingYear2.ToString()" LineType="LineType.Dashed" ValueProperty="Popularity" TItem="@MovieExtendedDTO"/>
+                    <RadzenCategoryAxis Padding="1"/>
+                    <RadzenValueAxis>
+                        <RadzenGridLines Visible="true"/>
+                        <RadzenAxisTitle Text="Popularity"/>
+                    </RadzenValueAxis>
+                    <RadzenCategoryAxis>
+                        <RadzenAxisTitle Text="Top 10 Movies"/>
+                    </RadzenCategoryAxis>
+                </RadzenChart>
+            </RadzenTabsItem>
+            <RadzenTabsItem Text="Average Rating" Style="background-color: #04080F">
+                <RadzenChart @ref="@_radzenChart">
+                    <RadzenAreaSeries Smooth="true" Data="@_movieStatistics" CategoryProperty="Place" Title="@_startingYear.ToString()" ValueProperty="Vote_average" RenderingOrder="1" TItem="@MovieExtendedDTO"/>
+                    <RadzenAreaSeries Smooth="true" Data="@_movieStatistics2" CategoryProperty="Place" Title="@_startingYear2.ToString()" LineType="LineType.Dashed" ValueProperty="Vote_average" TItem="@MovieExtendedDTO"/>
+                    <RadzenCategoryAxis Padding="1"/>
+                    <RadzenValueAxis>
+                        <RadzenGridLines Visible="true"/>
+                        <RadzenAxisTitle Text="AverageRating"/>
+                    </RadzenValueAxis>
+                    <RadzenCategoryAxis>
+                        <RadzenAxisTitle Text="Top 10 Movies"/>
+                    </RadzenCategoryAxis>
+                </RadzenChart>
+            </RadzenTabsItem>
+            <RadzenTabsItem Text="Votes Count" Style="background-color: #04080F">
+                <RadzenChart @ref="@_radzenChart">
+                    <RadzenAreaSeries Smooth="true" Data="@_movieStatistics" CategoryProperty="Place" Title="@_startingYear.ToString()" ValueProperty="Vote_count" TItem="@MovieExtendedDTO" RenderingOrder="1"/>
+                    <RadzenAreaSeries Smooth="true" Data="@_movieStatistics2" CategoryProperty="Place" Title="@_startingYear2.ToString()" LineType="LineType.Dashed" ValueProperty="Vote_count" TItem="@MovieExtendedDTO"/>
+                    <RadzenCategoryAxis Padding="20"/>
+                    <RadzenValueAxis>
+                        <RadzenGridLines Visible="true"/>
+                        <RadzenAxisTitle Text="VoteCount"/>
+                    </RadzenValueAxis>
+                    <RadzenCategoryAxis>
+                        <RadzenAxisTitle Text="Top 10 Movies"/>
+                    </RadzenCategoryAxis>
+                </RadzenChart>
+            </RadzenTabsItem>
+        </Tabs>
+    </RadzenTabs>
+}
+
+@code {
+    bool _shouldRender;
+    bool _shouldCompare;
+    bool _isLoading;
+    private SortBy _sortBy;
+    private SortBy _sortBy2;
+    private int _startingYear;
+    private int _startingYear2;
+
+    private List<MovieExtendedDTO> _filteredMovies = null!;
+    private List<MovieExtendedDTO> _filteredMovies2 = null!;
+    private IEnumerable<MovieExtendedDTO> _movieStatistics = null!;
+    private IEnumerable<MovieExtendedDTO> _movieStatistics2 = null!;
+
+    private RadzenDataList<MovieExtendedDTO> _datalist = new RadzenDataList<MovieExtendedDTO>();
+    private RadzenTabs _radzenTabs = new RadzenTabs();
+    private RadzenChart _radzenChart = new RadzenChart();
+
+    protected override async Task OnInitializedAsync()
+    {
+        _filteredMovies = new List<MovieExtendedDTO>();
+        _filteredMovies2 = new List<MovieExtendedDTO>();
+
+        _shouldCompare = false;
+        _startingYear = GetDecades().Last();
+        _startingYear2 = 2000;
+        _sortBy = SortBy.Popularity_desc;
+        _sortBy2 = SortBy.Popularity_desc;
+
+        await LoadData();
+    }
+
+    protected override Task OnAfterRenderAsync(bool firstRender)
+    {
+        _shouldRender = true;
+
+        return base.OnAfterRenderAsync(firstRender);
+    }
+
+    async Task LoadDataList()
+    {
+        _isLoading = true;
+
+        await LoadData();
+
+        _isLoading = false;
+    }
+
+    async Task LoadData()
+    {
+        _movieStatistics = Enumerable.Empty<MovieExtendedDTO>();
+        _filteredMovies.Clear();
+
+        var fromDate = new DateTimeOffset(new DateTime(_startingYear, 1, 1));
+        var toDate = new DateTimeOffset(new DateTime(_startingYear + 10, 1, 1));
+
+        var response = await MovieService.GetFilteredMoviesAsync(fromDate, toDate, _sortBy);
+
+        _filteredMovies = response.Results.ToList();
+
+        _movieStatistics = _filteredMovies.AsODataEnumerable();
+    }
+
+    async Task LoadData2()
+    {
+        _filteredMovies2.Clear();
+
+        var fromDate = new DateTimeOffset(new DateTime(_startingYear2, 1, 1));
+        var toDate = new DateTimeOffset(new DateTime(_startingYear2 + 10, 1, 1));
+
+        var response = await MovieService.GetFilteredMoviesAsync(fromDate, toDate, _sortBy2);
+
+        _filteredMovies2 = response.Results.ToList();
+
+        _movieStatistics2 = _filteredMovies2.AsODataEnumerable();
+    }
+
+    async Task UpdateStatisticsLists()
+    {
+        await LoadData();
+        await LoadData2();
+
+        await _radzenChart.Reload();
+    }
+
+    IEnumerable<SortBy> GetSortingOptions()
+    {
+        return Enum.GetValues(typeof(SortBy)).Cast<SortBy>();
+    }
+
+    IEnumerable<int> GetDecades()
+    {
+        var year = 1900;
+        List<int> listOfYears = new List<int>();
+        while (year < DateTimeOffset.Now.Year)
+        {
+            listOfYears.Add(year);
+            year += 10;
+        }
+
+        return listOfYears.AsODataEnumerable();
+    }
+
+    private void GoToMovie(int? id)
+    {
+        NavigationManager.NavigateTo($"/Movie/{id}");
+    }
+
+}

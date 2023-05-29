@@ -6,16 +6,15 @@ namespace MoviesApp.Services;
 public class MovieService : IMovieService
 {
     private readonly IMoviesClient _moviesClient;
-    private string api_key;
 
     public MovieService(IMoviesClient moviesClient)
     {
         _moviesClient = moviesClient;
     }
 
-    public async Task<MovieResponse> GetMovieAsync(int movie_id)
+    public async Task<MovieResponseDto> GetMovieAsync(string userId, int movie_id)
     {
-        return await _moviesClient.GetMovieAsync(movie_id);
+        return await _moviesClient.GetMovieAsync(movie_id, userId);
     }
 
     public Task AddFavoriteMovieAsync(FavoritesDto favoriteMovie)
@@ -28,19 +27,24 @@ public class MovieService : IMovieService
         return _moviesClient.DeleteFavoriteMovieAsync(favoriteMovie);
     }
 
-    public Task<MoviesResponseDto> GetMoviesByTitleAsync(string title, string? userId)
+    public Task<MovieListDto> GetMoviesByTitleAsync(string title, string? userId)
     {
         return _moviesClient.GetMoviesByTitleAsync(title, userId);
     }
     
-    public Task<MoviesResponseDto> GetTopFavoriteMovies(string? userId)
+    public Task<MovieListDto> GetTopFavoriteMovies(string? userId)
     {
         return _moviesClient.GetTopFavoriteMoviesAsync(userId);
     }
     
-    public Task<MoviesResponseDto> GetFavoriteMovies(string? userId)
+    public Task<MovieListDto> GetFavoriteMovies(string? userId)
     {
         return _moviesClient.GetFavoriteMoviesAsync(userId);
+    }
+
+    public Task<MovieCreditsResponseDto> GetMovieCreditsAsync(int movieId)
+    {
+        return _moviesClient.GetMovieCreditsAsync(string.Empty, movieId);
     }
 
     public async Task<RatingDto> GetMovieRatingAsync(int movieId)
@@ -56,5 +60,20 @@ public class MovieService : IMovieService
     public async Task AddRatingAsync(RatedMovieDto ratedMovie)
     {
         await _moviesClient.AddRatingAsync(ratedMovie);
+    }
+
+    public async Task<MoviesExtendedResponseDto> GetFilteredMoviesAsync(DateTimeOffset fromDate, DateTimeOffset toDate, SortBy sortBy)
+    {
+        return await _moviesClient.GetFilteredMoviesAsync(fromDate, toDate, sortBy);
+    }
+    
+    public async Task AddCommentAsync(CommentDto comment)
+    {
+        await _moviesClient.AddCommentAsync(comment);
+    }
+
+    public async Task<CommentsDto> GetCommentsAsync(int movieId)
+    {
+        return await _moviesClient.GetCommentsAsync(movieId);
     }
 }

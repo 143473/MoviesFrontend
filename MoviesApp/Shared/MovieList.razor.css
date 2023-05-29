@@ -1,7 +1,10 @@
 ﻿.details-link {
     color: #507DBC;
+    font-weight: bold;
 }
 
 .details-link:hover {
     color: #BBD1EA;
+    font-weight: bold;
 }
+

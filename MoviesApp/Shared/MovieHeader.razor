@@ -1,14 +1,15 @@
 ﻿@using Radzen
 @using Radzen.Blazor
-<div class="sticky-top background">
-    <div class="logo-banner" ></div>
-    <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center" Wrap="FlexWrap.Wrap">
-        @if (OnSearch != null)
-        {
-            <RadzenTextBox Placeholder="Search for a title..." class="w-75 rz-border-radius-6 rz-my-10 pl-3" Change="@OnSearch"/>            
-        }
-        <RadzenText TextStyle="TextStyle.H3" Style="color: white; margin-bottom: 30px"><strong>@Header</strong></RadzenText>
-    </RadzenStack>
+<div class="background header" style="height: 300px">
+    <div class="header-content">
+        <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center" Wrap="FlexWrap.Wrap">
+            @if (OnSearch != null)
+            {
+                <RadzenTextBox Placeholder="Search for a title..." class="w-75 rz-border-radius-6 rz-my-10 pl-3" Change="@OnSearch"/>
+            }
+            <RadzenText TextStyle="TextStyle.H3" Style="color: white; margin-bottom: 30px"><strong>@Header</strong></RadzenText>
+        </RadzenStack>
+        </div>
 </div>
 
 @code {

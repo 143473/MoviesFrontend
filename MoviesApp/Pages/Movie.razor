@@ -1,13 +1,14 @@
 ﻿@page "/Movie/{Id:int}"
 @using MoviesApp.Services.Interfaces
 @using movies_api
-@inject IMovieService _movieService
+@inject IMovieService MovieService
 @using Radzen.Blazor
 @using Radzen
-@using System.Security.Claims
-@inject NotificationService _notificationService
+@inject IUserService UserService
+@inject NotificationService NotificationService
+@inject NavigationManager Navigation
 
-@if (shouldRender == false)
+@if (_shouldRender == false)
 {
     <div class="d-flex justify-content-center">
         <div class="spinner-border" role="status">
@@ -18,115 +19,246 @@
 else
 {
     <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center" Wrap="FlexWrap.Wrap">
-        <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Start" Gap="1rem" Class="rz-p-4">
+        <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Start" Gap="3rem" Class="rz-p-4">
 
-            <RadzenImage Path="@movie.Poster_path" Style="border-radius: 1%;"/>
+            <RadzenImage Path="@_movie.Poster_path" Style="border-radius: 1%;"/>
 
             <RadzenStack Orientation="Orientation.Vertical" JustifyContent="JustifyContent.Start" Gap="0rem">
-                <RadzenText TextStyle="TextStyle.H3" Style="color: white">
-                    <strong>@movie.Title</strong>
+                <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.SpaceBetween">
+                    <RadzenText TextStyle="TextStyle.H3" Style="color: white" Class="rz-mb-5">
+                        <strong>@_movie.Title</strong> <span style="color: gray">(@ToYear(_movie.Release_date))</span>
+                    </RadzenText>
+                    <FavoriteButton OnFavoriteSingle="m => Favorite(_movie)" MovieSingle="_movie"></FavoriteButton>
+                </RadzenStack>
+                <RadzenText TextStyle="TextStyle.H6" Style="color: white; font-style: italic" Class="rz-mb-7">"@_movie.Tagline"</RadzenText>
+                <RadzenText TextStyle="TextStyle.H5" Style="color: white" Class="rz-pr-4">
+                    <strong>Overview</strong>
                 </RadzenText>
-                <RadzenText TextStyle="TextStyle.Body1" Style="color: white">@ToYear(movie.Release_date)</RadzenText>
-                <RadzenText TextStyle="TextStyle.Body1" Style="color: white">@movie.Overview</RadzenText>
+                <RadzenText TextStyle="TextStyle.Body1" Style="color: white" Class="rz-mb-7">@_movie.Overview</RadzenText>
                 <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0rem">
-                    <RadzenText TextStyle="TextStyle.H5" Style="color: white" Class="rz-pr-4">Rating:</RadzenText>
-                    <RadzenText TextStyle="TextStyle.H4" Style="color: white" Class="rz-pr-4">@movieRating.ToString("#.##")</RadzenText>
+                    <RadzenText TextStyle="TextStyle.H5" Style="color: white" Class="rz-pr-4">
+                        <strong>Rating</strong>
+                    </RadzenText>
                 </RadzenStack>
                 <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0rem">
+                    <RadzenText TextStyle="TextStyle.H4" Style="color: white" Class="rz-pr-4">@_movieRating.ToString("#.##")</RadzenText>
                     <div class="rz-pr-4 rz-text-align-center">
-                        <RadzenRating TValue="int" Stars="10" Value=@value Change=@(args => value = args)></RadzenRating>
+                        <RadzenRating TValue="int" Stars="10" Value=@_value Change=@(args => _value = args)></RadzenRating>
                     </div>
-                    <RadzenButton IsBusy="@loading" Shade="Shade.Lighter" Click=@(() => RateMovie(movie.Id)) Text="Rate" ButtonStyle="ButtonStyle.Light"/>
+                    <RadzenButton IsBusy="@_loading" Shade="Shade.Lighter" Click=@(() => RateMovie(_movie.Id)) Text="Rate" ButtonStyle="ButtonStyle.Light"/>
                 </RadzenStack>
                 <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0rem">
-                    <RadzenText TextStyle="TextStyle.Body1" Style="color: white" Class="rz-pr-2">Number of votes:</RadzenText>
-                    <RadzenText TextStyle="TextStyle.Body1" Style="color: white">@numberOfVotes</RadzenText>
+                    <RadzenText TextStyle="TextStyle.Body1" Style="color: white" Class="rz-pr-2 rz-mb-7">Votes</RadzenText>
+                    <RadzenText TextStyle="TextStyle.Body1" Style="color: white" Class="rz-mb-7">@_numberOfVotes.ToString("N0")</RadzenText>
                 </RadzenStack>
-                <RadzenText TextStyle="TextStyle.H5" Style="color: white" Class="rz-pr-4">Top Cast:</RadzenText>
-                <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Start" Gap="0rem">
-
-                    <div class="card mx-4" style="width: 138px">
-                        <img class="card-img-top" src="https://www.themoviedb.org/t/p/w300_and_h450_bestv2/4D0PpNI0kmP58hgrwGC3wCjxhnm.jpg" alt="Card image cap">
-                        <div class="card-body">
-                            <h5 class="card-title">Keanu Reeves</h5>
-                            <p class="card-text">Character name</p>
-                            <!--<a href="#" class="btn btn-primary">Go somewhere</a>-->
+                <RadzenText TextStyle="TextStyle.H5" Style="color: white" Class="rz-pr-4 rz-mb-5">
+                    <strong>Details</strong>
+                </RadzenText>
+                <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Start" Gap="0rem">
+                    <div class="container" style="padding-left: 0">
+                        <div class="row">
+                            <div class="col-sm">
+                                <p Style="color: white; margin: 0" Class="rz-pr-4">
+                                    <strong>Status</strong>
+                                </p>
+                                <p Style="color: white" Class="rz-pr-4">@_movie.Status</p>
+                            </div>
+                            <div class="col-sm">
+                                <p Style="color: white; margin: 0" Class="rz-pr-4">
+                                    <strong>Original Language</strong>
+                                </p>
+                                <p Style="color: white" Class="rz-pr-4">@ToOriginalLanguage(_movie.Original_language)</p>
+                            </div>
                         </div>
-                    </div>
-
-                    <div class="card mx-4" style="width: 138px">
-                        <img class="card-img-top" src="https://www.themoviedb.org/t/p/w300_and_h450_bestv2/4D0PpNI0kmP58hgrwGC3wCjxhnm.jpg" alt="Card image cap">
-                        <div class="card-body">
-                            <h5 class="card-title">Keanu Reeves</h5>
-                            <p class="card-text">Character name</p>
-                            <!--<a href="#" class="btn btn-primary">Go somewhere</a>-->
+                        <div class="row">
+                            <div class="col-sm">
+                                <p Style="color: white; margin: 0" Class="rz-pr-4">
+                                    <strong>Budget</strong>
+                                </p>
+                                <p Style="color: white" Class="rz-pr-4">$@_movie.Budget?.ToString("N0")</p>
+                            </div>
+                            <div class="col-sm">
+                                <p Style="color: white; margin: 0" Class="rz-pr-4">
+                                    <strong>Revenue</strong>
+                                </p>
+                                <p Style="color: white" Class="rz-pr-4">$@_movie.Revenue?.ToString("N0")</p>
+                            </div>
                         </div>
-                    </div>
-                    <div class="card mx-4" style="width: 138px">
-                        <img class="card-img-top" src="https://www.themoviedb.org/t/p/w300_and_h450_bestv2/4D0PpNI0kmP58hgrwGC3wCjxhnm.jpg" alt="Card image cap">
-                        <div class="card-body">
-                            <h5 class="card-title">Keanu Reeves</h5>
-                            <p class="card-text">Character name</p>
-                            <!--<a href="#" class="btn btn-primary">Go somewhere</a>-->
+                        <div class="row">
+                            <div class="col-sm">
+                                <p Style="color: white; margin: 0" Class="rz-pr-4">
+                                    <strong>Runtime</strong>
+                                </p>
+                                <p Style="color: white" Class="rz-pr-4">
+                                    @if (_movie.Runtime != null)
+                                    {
+                                        @MinutesToHours(_movie.Runtime.Value)
+                                    }
+                                </p>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm">
+                                <p Style="color: white; margin: 0" Class="rz-pr-4">
+                                    <strong>Genres</strong>
+                                </p>
+                                <p Style="color: white" Class="rz-pr-4">@_genres</p>
+                            </div>
                         </div>
                     </div>
                 </RadzenStack>
-
             </RadzenStack>
         </RadzenStack>
     </RadzenStack>
-    <AuthorizeView>
-        @{ SetUserId(context); }
-        ;
-    </AuthorizeView>
+    <RadzenTabs @bind-SelectedIndex=@_selectedIndex Change=@OnChange RenderMode="TabRenderMode.Server">
+        <Tabs>
+            @if (_movieCredits.Cast != null || _movieCredits.Crew != null)
+            {
+                <RadzenTabsItem Text="Actors" Style="background-color: #04080F; font-weight: bold;">
+                    <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Start" Style="overflow: scroll">
+                        @foreach (var actor in _cast)
+                        {
+                            <RadzenStack Orientation="Orientation.Vertical" JustifyContent="JustifyContent.Start" Gap="0.1em">
+                                <RadzenStack @onclick="() => GoToPerson(actor.Id)" Style="cursor: pointer;">
+                                    <RadzenImage Path="@(actor.Profile_path ?? "Images/MissingImage.png")" Style="border-radius: 1%; height: 170px"/>
+                                    <RadzenText TextStyle="TextStyle.Subtitle2" class="body-text"> @actor.Name</RadzenText>
+                                    <RadzenText TextStyle="TextStyle.Caption" Style="color: #BBD1EA"> @actor.Character </RadzenText>
+                                </RadzenStack>
+                            </RadzenStack>
+                        }
+                    </RadzenStack>
+                </RadzenTabsItem>
+                <RadzenTabsItem Text="Directors" Style="background-color: #04080F; font-weight: bold;">
+                    <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Start" Style="overflow: scroll">
+                        @foreach (var director in _directors)
+                        {
+                            <RadzenStack Orientation="Orientation.Vertical" JustifyContent="JustifyContent.Start" Gap="0.1em">
+                                <RadzenStack @onclick="() => GoToPerson(director.Id)" Style="cursor: pointer;">
+                                    <RadzenImage Path="@(director.Profile_path ?? "Images/MissingImage.png")" Style="border-radius: 1%; height: 170px"/>
+                                    <RadzenText TextStyle="TextStyle.Subtitle2" class="body-text"> @director.Name</RadzenText>
+                                    <RadzenText TextStyle="TextStyle.Caption" Style="color: #BBD1EA"> @director.Job </RadzenText>
+                                </RadzenStack>
+                            </RadzenStack>
+                        }
+                    </RadzenStack>
+                </RadzenTabsItem>
+                <RadzenTabsItem Text="Crew" Style="background-color: #04080F; font-weight: bold;">
+                    <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Start" Style="overflow: scroll">
+                        @foreach (var crewMember in _crew)
+                        {
+                            <RadzenStack Orientation="Orientation.Vertical" JustifyContent="JustifyContent.Start" Gap="0.1em">
+                                <RadzenStack @onclick="() => GoToPerson(crewMember.Id)" Style="cursor: pointer;">
+                                    <RadzenImage Path="@(crewMember.Profile_path ?? "Images/MissingImage.png")" Style="border-radius: 1%; height: 170px"/>
+                                    <RadzenText TextStyle="TextStyle.Subtitle2" class="body-text"> @crewMember.Name</RadzenText>
+                                    <RadzenText TextStyle="TextStyle.Caption" Style="color: #BBD1EA"> @crewMember.Job </RadzenText>
+                                </RadzenStack>
+                            </RadzenStack>
+                        }
+                    </RadzenStack>
+                </RadzenTabsItem>
+            }
+        </Tabs>
+    </RadzenTabs>
+    <RadzenTemplateForm TItem="CommentDto" Data=@_comment Submit=@OnSubmit InvalidSubmit=@OnInvalidSubmit>
+        <RadzenFormField Text="Comment" Variant="Variant.Text" Style="width: 100%; outline-width: 0; color: #6c757d">
+            <RadzenTextBox @bind-Value="@_commentText" Style="color: white; width: 100%;" />
+        </RadzenFormField>
+        <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End" Gap="0rem">
+        <RadzenButton ButtonType="ButtonType.Submit" Text="Comment" ButtonStyle="ButtonStyle.Light"></RadzenButton>
+        </RadzenStack>
+    </RadzenTemplateForm>
+    <RadzenText TextStyle="TextStyle.H5" Style="color: white" Class="rz-mt-4">
+        <strong>Comments</strong>
+    </RadzenText>
+
+    <RadzenStack Class="rz-mb-10" Orientation="Orientation.Vertical" JustifyContent="JustifyContent.Start" Gap="0em">
+    @if (_comments.Count == 0)
+    {
+        <RadzenText TextStyle="TextStyle.H6" Style="color: #6c757d; font-style: italic" Class="rz-mt-4">
+           No comments to display
+        </RadzenText>
+    }
+    @foreach (var comment in _comments)
+    {
+        <RadzenCard Class="rz-py-4 rz-pl-0 rz-my-2 border-1" Style="max-width: 100%; background-color: #343a40;">
+            <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Start" Gap="1rem" Class="rz-ml-4">
+                <RadzenText TextStyle="TextStyle.Body1" Style="color: white">@comment.Username:</RadzenText>
+                <RadzenText TextStyle="TextStyle.Body1" Style="color: white">@comment.Text</RadzenText>
+            </RadzenStack>
+        </RadzenCard>
+    }
+    </RadzenStack>
 }
 
 @code {
 
     [Parameter]
     public int Id { get; set; }
-
-    int value;
-    private MovieResponse movie;
-    private RatingDto rating;
-    private Boolean movieInDb = false;
-    private Boolean shouldRender = false;
-    private string? userId;
-    private double movieRating;
-    private Boolean loading = false;
-    private int numberOfVotes;
+    string _commentText = "";
+    int _value;
+    private MovieResponseDto _movie = null!;
+    private RatingDto _rating = null!;
+    private Boolean _shouldRender;
+    private string? _userId;
+    private double _movieRating;
+    private Boolean _loading;
+    private int _numberOfVotes;
+    private string _genres = "No genres available";
+    int _selectedIndex = 0;
+    MovieCreditsResponseDto _movieCredits = null!;
+    List<MovieCastDto> _cast = new List<MovieCastDto>();
+    List<MovieCrewDto> _directors = new List<MovieCrewDto>();
+    List<MovieCrewDto> _crew = new List<MovieCrewDto>();
+    readonly CommentDto _comment = new CommentDto();
+    List<CommentDto> _comments = new List<CommentDto>();
+    CommentsDto _commentsDto = new CommentsDto();
+    private string _username = null!;
 
     protected override async Task OnInitializedAsync()
-    {
-        movie = new MovieResponse();
-        rating = new RatingDto();
-        movie = await _movieService.GetMovieAsync(Id);
-        rating = await _movieService.GetMovieRatingAsync(Id);
-        if (rating.MovieId.Value == movie.Id)
+    {   
+        SetUserId();
+        _movie = new MovieResponseDto();
+        _rating = new RatingDto();
+        _movie = await MovieService.GetMovieAsync(_userId, Id);
+        _rating = await MovieService.GetMovieRatingAsync(Id);
+        if (_rating.MovieId != null && _rating.MovieId.Value == _movie.Id)
         {
-            movieRating = rating.RatingValue.Value;
-            numberOfVotes = rating.Votes.Value;
+            if (_rating.RatingValue != null) _movieRating = _rating.RatingValue.Value;
+            if (_rating.Votes != null) _numberOfVotes = _rating.Votes.Value;
         }
         else
         {
-            movieRating = movie.Vote_average.Value;
-            numberOfVotes = movie.Vote_count.Value;
+            if (_movie.Vote_average != null) _movieRating = _movie.Vote_average.Value;
+            if (_movie.Vote_count != null) _numberOfVotes = _movie.Vote_count.Value;
         }
+        if (_movie.Genres != null)
+        {
+            _genres = String.Join(", ", _movie.Genres.Select(g => g.Name));
+        }
+
+        _movieCredits = await MovieService.GetMovieCreditsAsync(Id);
+
+        _cast = _movieCredits.Cast.OrderByDescending(c => c.Popularity).ToList();
+        _directors =  _movieCredits.Crew.Where(c => c.Job == "Director").ToList();
+        _crew = _movieCredits.Crew.Where(c => !c.Job.Equals("Director")).ToList();
+        _commentsDto = await MovieService.GetCommentsAsync(Id);
+        _comments = _commentsDto.Comments.ToList();
+        GetUserName();
     }
 
     private async void CheckRatingInDb()
     {
-        rating = await _movieService.GetMovieRatingAsync(Id);
-        if (rating.MovieId.Value == movie.Id)
+        _rating = await MovieService.GetMovieRatingAsync(Id);
+        if (_rating.MovieId != null && _rating.MovieId.Value == _movie.Id)
         {
-            movieRating = rating.RatingValue.Value;
-            numberOfVotes = rating.Votes.Value;
+            if (_rating.RatingValue != null) _movieRating = _rating.RatingValue.Value;
+            if (_rating.Votes != null) _numberOfVotes = _rating.Votes.Value;
         }
     }
 
     protected override Task OnAfterRenderAsync(bool firstRender)
     {
-        shouldRender = true;
+        _shouldRender = true;
         return base.OnAfterRenderAsync(firstRender);
     }
 
@@ -134,37 +266,121 @@ else
 
     private async void RateMovie(int? id)
     {
-        if (value == 0)
+        if (_value == 0)
         {
-            _notificationService.Notify(new NotificationMessage {Severity = NotificationSeverity.Warning, Summary = "No rating value selected", Duration = 4000});
+            NotificationService.Notify(new NotificationMessage {Severity = NotificationSeverity.Info, Summary = "No rating value selected", Duration = 4000});
         }
-        else if (userId == null)
+        else if (_userId == null)
         {
-            _notificationService.Notify(new NotificationMessage {Severity = NotificationSeverity.Warning, Summary = "Log in to rate", Duration = 4000});
+            NotificationService.Notify(new NotificationMessage {Severity = NotificationSeverity.Info, Summary = "Log in to rate", Duration = 4000});
         }
         else
         {
-            loading = true;
+            _loading = true;
             RatedMovieDto ratedMovie = new RatedMovieDto()
             {
                 RatedMovieId = id,
-                Rating = value,
-                UserId = userId
+                Rating = _value,
+                UserId = _userId
             };
 
-            await _movieService.AddRatingAsync(ratedMovie);
+            await MovieService.AddRatingAsync(ratedMovie);
 
             CheckRatingInDb();
             await Task.Delay(1000);
-            loading = false;
-            _notificationService.Notify(new NotificationMessage {Severity = NotificationSeverity.Success, Summary = "Rating Saved", Duration = 4000});
+            _loading = false;
+            NotificationService.Notify(new NotificationMessage {Severity = NotificationSeverity.Success, Summary = "Rating Saved", Duration = 4000});
             StateHasChanged();
         }
     }
 
-    private void SetUserId(AuthenticationState context)
+    private void SetUserId()
     {
-        userId = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        _userId = UserService.GetUserId();
+    }
+    
+    private async Task Favorite(MovieResponseDto movie)
+    {
+        movie.IsFavorite = !movie.IsFavorite;
+        FavoritesDto favorite = new() { MovieId = movie.Id, UserId = _userId };
+
+        try
+        {
+            if (movie.IsFavorite != null && movie.IsFavorite.Value)
+            {   
+
+                await MovieService.AddFavoriteMovieAsync(favorite);
+                NotificationService.Notify(new NotificationMessage {Severity = NotificationSeverity.Info, Summary = "Movie saved in favorites", Duration = 4000});
+                
+            }
+            else
+            {
+                await MovieService.RemoveFavoriteMovieAsync(favorite);
+                NotificationService.Notify(new NotificationMessage {Severity = NotificationSeverity.Info, Summary = "Movie removed from favorites", Duration = 4000});
+
+            }
+        }
+        catch (Exception)
+        {
+            movie.IsFavorite = !movie.IsFavorite;
+        }
+    }
+
+    private static string ToOriginalLanguage(string language)
+    {
+        return language == "en" ? "English" : "No language available";
+    }
+
+    void OnChange(int index)
+    {
+    }
+    
+    private void GoToPerson(int? id)
+    {
+        Navigation.NavigateTo($"/People/{id}");
+    }
+
+    private async Task OnSubmit()
+    {
+        if (_commentText.Equals(""))
+        {
+            return;
+        }
+        if (_userId != null)
+        {
+            var comment = new CommentDto()
+            {
+                MovieId = Id,
+                Text = _commentText,
+                UserId = _userId,
+                Username = _username
+            };
+            await MovieService.AddCommentAsync(comment);
+            // Should probably just return the new comment and add to the list to avoid all the calls the the api
+            _commentsDto = await MovieService.GetCommentsAsync(Id);
+            _comments = _commentsDto.Comments.ToList();
+            _commentText = "";
+        }
+        else
+        {
+            NotificationService.Notify(new NotificationMessage {Severity = NotificationSeverity.Info, Summary = "Log in to leave comment", Duration = 4000});
+        }
+    }
+
+    private void OnInvalidSubmit(FormInvalidSubmitEventArgs obj)
+    {
+        NotificationService.Notify(new NotificationMessage {Severity = NotificationSeverity.Error, Summary = "Comment could not be saved", Duration = 4000});
+    }
+    
+    private void GetUserName()
+    {
+        _username = UserService.GetUserName();
+    }
+
+    private string MinutesToHours(int minutes)
+    {
+        var time = TimeSpan.FromMinutes(minutes);
+        return $"{Math.Floor(time.TotalHours)}h {time.Minutes}min";
     }
 
 }

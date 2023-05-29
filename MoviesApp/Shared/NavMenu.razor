@@ -1,49 +1,61 @@
-﻿<nav class="navbar navbar-expand-md navbar-dark bg-dark mb-4">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="">Best Movies</a>
+﻿@using MoviesApp.Services.Interfaces
+@using Radzen
+@using Radzen.Blazor
+@inject IUserService _userService
+<nav class="navbar navbar-expand-md navbar-dark bg- mb-4 justify-content-center" style="border-style: outset; border-bottom-color: white; background-color: black">
+    <div class="container-fluid justify-content-between">
+        <RadzenStack Orientation="Orientation.Horizontal" Style="margin-left: 50px;">
+            <img src="Images/popcorn-icon.png" alt="logo" style="width:40px; height: 40px" />
+            <RadzenText TextStyle="TextStyle.H5" Style="color: white; margin-top: 10px"><strong>Best Movies</strong></RadzenText>
+        </RadzenStack>
         <button class="navbar-toggler @NavButtonCssClass" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse"
                 aria-controls="navbarCollapse" aria-label="Toggle navigation" @onclick="ToggleNavMenu">
             <span class="navbar-toggler-icon"></span>
         </button>
-
-        <div class="collapse navbar-collapse  @NavBarCssClass" id="navbarCollapse" @onclick="ToggleNavMenu">
+     
+        <div class="collapse navbar-collapse @NavBarCssClass justify-content-end" style="margin-right: 50px;" id="navbarCollapse" @onclick="ToggleNavMenu">
             <ul class="navbar-nav">
                 <li class="nav-item">
                     <NavLink class="nav-link btn btn-link" href="" Match="NavLinkMatch.All">
-                        <span class="oi oi-home" aria-hidden="true"></span> Home
+                        <RadzenText TextStyle="TextStyle.H6" Style="color: #D3D3D3;">Search</RadzenText>
                     </NavLink>
                 </li>
                 <li class="nav-item">
-                    <NavLink class="nav-link btn btn-link" href="counter">
-                        <span class="oi oi-plus" aria-hidden="true"></span> Counter
+                    <NavLink class="nav-link btn btn-link" href="SearchForPeople">
+                        <RadzenText TextStyle="TextStyle.H6" Style="color: #D3D3D3;">People</RadzenText>
                     </NavLink>
                 </li>
                 <li class="nav-item">
-                    <NavLink class="nav-link btn btn-link" href="fetchdata">
-                        <span class="oi oi-list-rich" aria-hidden="true"></span> Fetch data
+                    <NavLink class="nav-link btn btn-link" href="Statistics">
+                        <RadzenText TextStyle="TextStyle.H6" Style="color: #D3D3D3;">Statistics</RadzenText>
+                    </NavLink>
+                </li>
+                <li class="nav-item">
+                    <NavLink class="nav-link btn btn-link" href="favorites">
+                        <RadzenText TextStyle="TextStyle.H6" Style="color: #D3D3D3;">Favorites</RadzenText>
                     </NavLink>
                 </li>
                 <li class="nav-item d-flex d-inline-flex">
                     <CascadingAuthenticationState>
-                    <AuthorizeView>
-                        <Authorized>
-                            <NavLink class="nav-link btn btn-link" href="Identity/Account/Manage">
-                                <span aria-hidden="true"></span> Hello, @context.User.Identity?.Name!
-                            </NavLink>
+                        <AuthorizeView>
+                            <Authorized>
+                                <NavLink class="nav-link btn btn-link" href="Identity/Account/Manage">
+                                    <span aria-hidden="true"></span> Hello, @name!
+                                </NavLink>
 
-                            <form method="post" action="Identity/Account/LogOut">
-                                <button type="submit" class="nav-link btn btn-link">Log out</button>
-                            </form>
-                        </Authorized>
-                        <NotAuthorized>
-                            <NavLink class="nav-link btn btn-link" href="Identity/Account/Register">
-                                <span aria-hidden="true"></span> Register
-                            </NavLink>
-                            <NavLink class="nav-link btn btn-link" href="Identity/Account/Login">
-                                <span class="oi oi-account-login" aria-hidden="true"></span> Login
-                            </NavLink>
-                        </NotAuthorized>
-                    </AuthorizeView>
+                                <form method="post" action="Identity/Account/LogOut">
+                                    <button type="submit" class="nav-link btn btn-link">Log out</button>
+                                </form>
+                            </Authorized>
+                            <NotAuthorized>
+                                <NavLink class="nav-link btn btn-link" href="Identity/Account/Register">
+                                    <RadzenText TextStyle="TextStyle.H6" Style="color: #D3D3D3;">Register</RadzenText>
+                                </NavLink>
+                                <NavLink class="nav-link btn btn-link" href="Identity/Account/Login">
+                                    <RadzenText TextStyle="TextStyle.H6" Style="color: #D3D3D3;">Login</RadzenText>
+                                </NavLink>
+                            </NotAuthorized>
+                        </AuthorizeView>
                     </CascadingAuthenticationState>
                 </li>
             </ul>
@@ -57,9 +69,21 @@
     private string? NavBarCssClass => collapseNavMenu ? null : "show";
 
     private string? NavButtonCssClass => collapseNavMenu ? "collapsed" : null;
+    private string name;
 
     private void ToggleNavMenu()
     {
         collapseNavMenu = !collapseNavMenu;
     }
+
+    protected override void OnInitialized()
+    {
+        name = _userService.GetUserName();
+    }
+
+    private void GetUserName()
+    {
+        name = _userService.GetUserName();
+    }
+    
 }
